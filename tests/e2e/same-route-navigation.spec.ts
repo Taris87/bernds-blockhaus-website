@@ -142,7 +142,12 @@ test.describe('same-route navigation (QA-043)', () => {
     expect(focusedInMain).toBe(true);
   });
 
-  test('pathname change still moves focus to main', async ({ page }) => {
+  // QA-107: a pathname change now also starts the new page at the top
+  // (previously the old scroll position was kept, which was a bug).
+  test('pathname change moves focus to main and starts at the top', async ({
+    page,
+  }) => {
+    await scrollToBottom(page);
     await page
       .getByRole('navigation', { name: 'Hauptnavigation' })
       .getByRole('link', { name: /Gaststätte/ })
@@ -151,17 +156,21 @@ test.describe('same-route navigation (QA-043)', () => {
     await expect(page).toHaveURL(/\/gaststaette\/?$/);
     expect(await isSameDocument(page)).toBe(true);
     await expect(page.getByRole('main')).toBeFocused();
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
   });
 
-  test('pathname change after a query change still moves focus to main', async ({
+  test('pathname change after a query change moves focus to main and starts at the top', async ({
     page,
   }) => {
+    const scrollBefore = await scrollToBottom(page);
     await routerNavigate(page, `${pagesBase}/galerie?ansicht=raster`);
     await settle(page);
     await expect(page.getByRole('main')).not.toBeFocused();
+    expect(await page.evaluate(() => window.scrollY)).toBe(scrollBefore);
 
     await routerNavigate(page, `${pagesBase}/kontakt`);
     await expect(page).toHaveURL(/\/kontakt$/);
     await expect(page.getByRole('main')).toBeFocused();
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
   });
 });
