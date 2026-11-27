@@ -49,7 +49,7 @@ test.describe('native gallery lightbox', () => {
     await expect.poll(() => page.evaluate(() => {
       const active = document.activeElement;
       const modal = document.querySelector('dialog[open]');
-      return active instanceof HTMLElement && !!modal?.contains(active);
+      return active instanceof HTMLElement && !!modal?.matches(':modal') && !active.closest('#main');
     })).toBe(true);
     const backgroundFocusable = page.locator('#main a[href], #main button').first();
     await backgroundFocusable.focus();
@@ -125,12 +125,13 @@ test.describe('native gallery lightbox', () => {
     const main = page.locator('main#main');
     await expect(main).toBeFocused();
     await expect(main.locator('h1')).toBeVisible();
-    await expect(oldTrigger).not.toBeFocused();
+    expect(await oldTrigger.count()).toBe(0);
   });
 
   test('remounts the gallery and opens with the new trigger after ordinary navigation', async ({ page }) => {
     await page.goto(`${base}/galerie`);
     const original = page.getByRole('button', { name: /groß anzeigen/i }).first();
+    const originalElement = await original.elementHandle();
     await original.click();
     await page.getByRole('button', { name: 'Galerie schließen' }).click();
     await page.getByRole('link', { name: 'Startseite' }).click();
@@ -144,7 +145,7 @@ test.describe('native gallery lightbox', () => {
     await expect(page.getByRole('button', { name: 'Galerie schließen' })).toBeFocused();
     await page.getByRole('button', { name: 'Galerie schließen' }).click();
     await expect(newTrigger).toBeFocused();
-    await expect(original).not.toBeFocused();
+    expect(await originalElement?.evaluate((element) => element.isConnected)).toBe(false);
   });
 
   test('closes when the backdrop is activated', async ({ page }) => {
