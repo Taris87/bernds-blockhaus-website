@@ -39,4 +39,4 @@ Offen vor Produktivbetrieb: Backend-Endpunkt und Empfängerlogik, serverseitige 
 
 ## Testumfang
 
-Die Playwright-Spezifikationen enthalten derzeit 8 deklarierte Tests (6 in `mobile-navigation.spec.ts` inklusive vier Viewport-Durchläufen und 2 in `navigation.spec.ts`). Das ist die statische deklarierte Testzahl, kein Nachweis eines erfolgreichen Laufs. Tatsächlich ausgeführte Ergebnisse müssen dem zugehörigen CI-Run entnommen werden.
+Die Playwright-Spezifikationen enthalten derzeit 7 deklarierte Tests (5 in `mobile-navigation.spec.ts` inklusive vier Viewport-Durchläufen und 2 in `navigation.spec.ts`). Das ist die statische deklarierte Testzahl, kein Nachweis eines erfolgreichen Laufs. Tatsächlich ausgeführte Ergebnisse müssen dem zugehörigen CI-Run entnommen werden.
