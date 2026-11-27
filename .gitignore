@@ -13,3 +13,4 @@ test-results/
 .architect/qa/runs/
 .architect/qa/last-gate.json
 .architect/sources/
+.architect/design/mockups/
