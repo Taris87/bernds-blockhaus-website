@@ -19,7 +19,6 @@ export const photos = {
   blockhausWinterNah: { src: 'blockhaus/blockhaus-winter-schnee-nah.jpg', alt: 'Das Blockhaus im Schnee mit verschneiter Tanne', width: 413, height: 274 },
   blockhausTeichSchilf: { src: 'blockhaus/blockhaus-teich-schilf.jpg', alt: 'Giebelseite des Blockhauses über dem Teich mit Schilf und hohem Gras', width: 310, height: 466 },
   blockhausWegweiser: { src: 'blockhaus/blockhaus-wegweiser.jpg', alt: 'Wegweiser zu Bernd’s Blockhaus, Rad-, Reit- und Wanderhütte, vor einem blühenden Rapsfeld', width: 273, height: 410 },
-  blockhausFernansicht: { src: 'blockhaus/blockhaus-fernansicht-wiese.jpg', alt: 'Grüne Wiese mit Bäumen, im Hintergrund das Blockhaus unter Wolkenhimmel', width: 587, height: 390 },
   festtafel: { src: 'gastronomie/festtafel-innenraum.jpg', alt: 'Lange, festlich gedeckte Tafel mit roten Servietten im holzvertäfelten Gastraum', width: 343, height: 458 },
   gerichtBraten: { src: 'gastronomie/gericht-braten-knoedel-rotkraut.jpg', alt: 'Braten mit Soße, Knödeln und Rotkraut auf einem Teller', width: 398, height: 532 },
   gerichtBratwurstKraut: { src: 'gastronomie/gericht-bratwurst-kraut.jpg', alt: 'Zwei Bratwürste auf Sauerkraut', width: 397, height: 529 },
