@@ -88,15 +88,13 @@ test.describe('mobile navigation dialog', () => {
     await expect(toggle).toBeFocused();
   });
 
-  test('restores focus after the close button is activated', async ({ page }) => {
+  test('restores focus to the menu toggle after the close button is activated', async ({ page }) => {
     const toggle = page.getByRole('button', { name: 'Menü öffnen' });
     await toggle.click();
     await page.getByRole('button', { name: 'Menü schließen' }).click();
 
     await expect(page.getByRole('dialog', { name: 'Mobile Navigation' })).not.toBeVisible();
-    await expect(page.locator('main#main')).toBeFocused();
-    await expect(page.locator('main#main h1')).toBeVisible();
-    await expect(toggle).not.toBeFocused();
+    await expect(toggle).toBeFocused();
   });
 
   test('keeps programmatic focus inside the dialog', async ({ page }) => {

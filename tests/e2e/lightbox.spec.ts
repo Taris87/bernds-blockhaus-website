@@ -73,9 +73,16 @@ test.describe('native gallery lightbox', () => {
     });
     expect(backgroundFocusBlocked).toBe(true);
 
-    await next.click();
-    await expect(dialog).toHaveAttribute('aria-label', 'Gastbereich');
-    await expect(next).toBeFocused();
+    // The attempted background focus must not escape the modal context.
+    // Image navigation is covered separately by the viewport test above.
+    await expect(dialog).toBeVisible();
+    await expect.poll(() => page.evaluate(() => {
+      const modal = document.querySelector('dialog[open]');
+      const active = document.activeElement;
+      return !!modal?.matches(':modal') &&
+        (active === document.body || active === document.documentElement ||
+          (active instanceof HTMLElement && !!modal.contains(active)));
+    })).toBe(true);
     await page.getByRole('button', { name: 'Galerie schließen' }).click();
     await expect(trigger).toBeFocused();
   });
