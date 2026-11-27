@@ -1,4 +1,7 @@
 import { useRef, useState, type FormEvent } from 'react';
+import { getContact, phoneHref } from '../../data/contacts';
+
+const contact = getContact('blockhaus');
 
 const fallbackMessage =
   'Das Anfrageformular ist noch nicht mit einem Versanddienst verbunden. Bitte kontaktieren Sie uns telefonisch oder per E-Mail.';
@@ -74,7 +77,11 @@ export function ApartmentInquiryForm() {
         <div>
           <p className="eyebrow">Ihre Auszeit</p>
           <h2>Ferienwohnung <em>anfragen.</em></h2>
-          <p>[PLATZHALTER: Hinweise zu Buchung und Kontakt ergänzen.]</p>
+          <p>
+            {contact.responsibility}: {contact.name}, Telefon{' '}
+            <a href={phoneHref(contact.phone)}>{contact.phone}</a>, E-Mail{' '}
+            <a href={`mailto:${contact.email}`}>{contact.email}</a>
+          </p>
         </div>
         <form className="inquiry-form" onSubmit={handleSubmit}>
           <div className="form-grid">
