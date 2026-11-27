@@ -1,3 +1,4 @@
+import { StrictMode } from 'react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
@@ -71,6 +72,26 @@ describe('Header mobile navigation', () => {
       'open',
     );
     expect(toggle).toHaveFocus();
+  });
+
+  it('opens and closes safely under React Strict Mode', () => {
+    render(
+      <StrictMode>
+        <MemoryRouter>
+          <Header />
+        </MemoryRouter>
+      </StrictMode>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
+    expect(screen.getByRole('dialog', { name: 'Mobile Navigation' })).toHaveAttribute(
+      'open',
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Menü schließen' }));
+    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute(
+      'open',
+    );
   });
 
   it('returns focus to the dialog when script-driven focus escapes', () => {
