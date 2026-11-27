@@ -80,8 +80,8 @@ describe('Lightbox Strict Mode lifecycle', () => {
     const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus');
     renderLightbox();
     await act(async () => { await Promise.resolve(); });
-    const trigger = container.querySelector('button');
-    expect(trigger).not.toBeNull();
+    const trigger = Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Gallery trigger');
+    expect(trigger).toBeDefined();
 
     await act(async () => root.unmount());
     await act(async () => { await Promise.resolve(); });
