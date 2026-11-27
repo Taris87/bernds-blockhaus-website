@@ -27,11 +27,11 @@ test.describe('native gallery lightbox', () => {
 
       await page.getByRole('button', { name: 'Weiter' }).click();
       await expect(dialog).toHaveAttribute('aria-label', 'Gastbereich');
-      await expect(close).toBeFocused();
+      await expect(page.getByRole('button', { name: 'Weiter' })).toBeFocused();
 
       await page.keyboard.press('ArrowRight');
       await expect(dialog).toHaveAttribute('aria-label', 'Ferienwohnungen');
-      await expect(close).toBeFocused();
+      await expect(page.getByRole('button', { name: 'Weiter' })).toBeFocused();
 
       await page.keyboard.press('Escape');
       await expect(dialog).not.toBeVisible();

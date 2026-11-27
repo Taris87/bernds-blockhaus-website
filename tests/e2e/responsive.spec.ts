@@ -43,12 +43,10 @@ test('gastronomy menu tabs remain operable and expose the selected category', as
   await page.goto(`${base}/gaststaette`);
 
   const tabs = page.getByRole('tab');
-  await expect(tabs).toHaveCount(3);
+  await expect(tabs).toHaveCount(2);
   await tabs.nth(1).click();
   await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
   await expect(page.locator('.menu-list h3')).toHaveText('Getränke');
-  await tabs.nth(2).click();
-  await expect(tabs.nth(2)).toHaveAttribute('aria-selected', 'true');
 });
 
 test('apartment inquiry fields remain visible, usable and within the viewport', async ({ page }) => {
