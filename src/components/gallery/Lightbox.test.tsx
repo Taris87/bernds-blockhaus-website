@@ -136,15 +136,14 @@ describe('Lightbox Strict Mode lifecycle', () => {
 
     // Deliberately run the old queued callbacks after the new instance has
     // mounted but before its own open callback is allowed to execute.
+    const focusCallsBeforeStaleTasks = focusSpy.mock.calls.length;
     await act(async () => {
       oldOpeningTasks.forEach((callback) => callback());
     });
 
     expect(showModalCalls).toBe(0);
     expect(container.querySelector('dialog[open]')).toBeNull();
-    const focusCallsAfterStaleTask = focusSpy.mock.contexts.slice();
-    expect(focusCallsAfterStaleTask).not.toContain(oldTrigger);
-    expect(focusCallsAfterStaleTask).not.toContain(newTrigger);
+    expect(focusSpy.mock.calls.length).toBe(focusCallsBeforeStaleTasks);
 
     await act(async () => {
       newOpeningTasks.forEach((callback) => callback());
