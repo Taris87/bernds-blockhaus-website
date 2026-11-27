@@ -29,7 +29,12 @@ beforeEach(() => {
     configurable: true,
     value: function (this: HTMLDialogElement) {
       closeDialogCalls += 1;
+      const restoreTarget = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       this.removeAttribute('open');
+      if (restoreTarget && this.contains(restoreTarget)) {
+        const trigger = Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Gallery trigger');
+        trigger?.focus();
+      }
     },
   });
   addedListeners = [];
