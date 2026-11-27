@@ -59,3 +59,29 @@ Abdeckung:
 
 - Unit (`src/components/layout/SiteLayout.test.tsx`, 6 Tests): erster Render, Query, Hash, Query + Hash, pathname-Wechsel, Query gefolgt von pathname-Wechsel.
 - Playwright (`tests/e2e/same-route-navigation.spec.ts`, 6 Tests, Chromium): Query-Änderung über den Router (Fokus und Scrollposition bleiben, kein Reload), native Hash-Navigation (Scroll zum Ziel und Fokus aufs Ziel, kein Reload), Query + Hash über den Router, Skip-Link per Tastatur, pathname-Wechsel über die Hauptnavigation und nach vorheriger Query-Änderung.
+
+Nachtrag (QA-107): Das hier festgehaltene Fokusverhalten bleibt gültig. Die frühere Aussage, dass bei einem `pathname`-Wechsel nicht gescrollt wird, ist überholt; sie war ein Fehler (siehe QA-107). Für reine Query- oder Hash-Änderungen auf derselben Route gilt weiterhin: kein Scrollen und kein Fokus-Sprung durch die App.
+
+## QA-107 Seitenwechsel startet oben
+
+Benutzermeldung nach dem Live-Gang: Navbar-Links führen zur richtigen Seite, die neue Seite startet aber in der Mitte. Ursache: `SiteLayout` setzte bei einem `pathname`-Wechsel nur den Fokus auf `main` (ohne `preventScroll`) und übernahm die Scrollposition der vorherigen Seite.
+
+Festgelegtes Verhalten (`src/hooks/useRouteScroll.ts`, eingebunden in `SiteLayout`):
+
+- Neuer `pathname` per PUSH oder REPLACE (Navbar, Mobile-Menü, Footer, Buttons, Karten-Links): Die Seite steht sofort ganz oben (`window.scrollTo({ top: 0, left: 0, behavior: 'instant' })`). `behavior: 'instant'` umgeht das globale `scroll-behavior: smooth`, es ist kein Hochscrollen sichtbar. Das läuft in einem Layout-Effekt, die neue Seite wird also nie an der alten Position gezeichnet.
+- Neuer `pathname` mit Hash (z. B. `/eichwieserhof#anguszucht`): Sprung zum Hash-Ziel (`scrollIntoView({ behavior: 'instant', block: 'start' })`, `scroll-margin-top` wird beachtet). Gibt es das Ziel nicht, geht es nach oben. Derzeit gibt es keine solchen Links in der App; das Verhalten ist vorsorglich festgelegt und per Unit-Test abgedeckt.
+- Browser-Zurück/Vor (POP) auf einen anderen `pathname`: Die Position, die der Verlaufseintrag beim Verlassen hatte, wird sofort wiederhergestellt. Ohne gespeicherte Position (z. B. Eintrag aus einer früheren Sitzung) gilt das Verhalten wie bei PUSH.
+- Reine Query- oder Hash-Änderung auf demselben `pathname`: kein Scrollen und kein Fokus-Sprung durch die App (QA-043). Native Fragment-Navigation (Skip-Link `#main`) bleibt beim Browser.
+- Nach jedem `pathname`-Wechsel erhält `main` den Fokus mit `{ preventScroll: true }`. Der Fokus wird als passiver Effekt gesetzt, damit er nach dem Schließen des Mobile-Menü-Dialogs kommt, der den Fokus sonst auf den Menü-Button zurückgibt.
+- Reduced Motion: Alle App-Sprünge sind ohnehin sofort; `prefers-reduced-motion` schaltet zusätzlich das globale Smooth-Scrolling ab.
+
+Entscheidung zu `<ScrollRestoration />`: Die App nutzt zwar einen Data-Router (`createBrowserRouter`), React Routers `<ScrollRestoration />` wird aber bewusst nicht eingesetzt. Sie scrollt bei jeder Navigation ohne `preventScrollReset` nach oben, also auch bei reinen Query-Änderungen (Widerspruch zu QA-043), und ruft `window.scrollTo(0, y)` ohne `behavior` auf, wodurch das globale `scroll-behavior: smooth` greift und das Hochscrollen sichtbar würde. Stattdessen merkt sich der Hook die Scrollposition je Verlaufseintrag (Schlüssel: `location.key` plus `pathname`, über passive `scroll`-Events) und setzt `history.scrollRestoration = 'manual'`, solange die App läuft. Beim Verlassen der Seite (`pagehide`) wird wieder `'auto'` gesetzt, damit der Browser bei Neuladen und Back-Forward-Cache selbst wiederherstellen *kann*; bei `pageshow` übernimmt die App wieder. Die gespeicherten Positionen leben nur im Speicher der laufenden Seite. **Nicht belegt:** In der QA (headless Chromium) startete eine neu geladene Seite oben (0) – identisch zum Stand vor diesem Fix (`origin/main`), also keine Regression. Ob ein normaler Browser nach Neuladen die Position wiederherstellt, wurde nicht geprüft (QA-109).
+
+Bekannte Grenzen: nur in Chromium getestet; die Positionsliste hat keine Obergrenze (QA-108, in realen Sitzungen vernachlässigbar); werden später Routen asynchron geladen, muss die Wiederherstellung bei Zurück/Vor neu bewertet werden.
+
+Abdeckung:
+
+- Unit (`src/components/layout/SiteLayout.test.tsx`, 9 neue Tests, insgesamt 15): kein Scroll beim ersten Render; PUSH und REPLACE auf neuen `pathname` → `scrollTo({ top: 0, left: 0, behavior: 'instant' })` und Fokus auf `main` mit `preventScroll`; neuer `pathname` mit Hash → `scrollIntoView` auf dem Ziel, ohne Ziel → oben; Query- und Hash-Änderung → kein Scroll; Zurück und Vor → gespeicherte Position.
+- Playwright (`tests/e2e/scroll-on-navigation.spec.ts`, 8 Tests, Chromium) auf `/eichwieserhof` bei 375 px und 1440 px nach weitem Scrollen: Navbar-Link (Desktop) bzw. Mobile-Menü-Link (375 px) und Footer-Link → `scrollY === 0` (per `expect.poll`), Fokus auf `main`, kein Reload, keine Zwischenpositionen eines Smooth-Scrolls; Zurück → alte Position, Vor → oben; Skip-Link nach Seitenwechsel; Reduced Motion.
+- `tests/e2e/same-route-navigation.spec.ts`: Die beiden pathname-Tests prüfen jetzt nach weitem Scrollen zusätzlich `scrollY === 0`; die Query-, Hash- und Skip-Link-Tests sind unverändert.
+- Gegenprobe: Ohne Scroll-Logik (und mit `focus()` ohne `preventScroll`) wurden 6 der 9 neuen Unit-Tests und 10 von 14 E2E-Tests (beide Dateien) rot; mit `scrollTo` ohne `behavior: 'instant'` wurden die 4 Navbar-/Footer-Tests rot (Smooth-Scroll-Zwischenpositionen erkannt).

@@ -1,20 +1,13 @@
-import { useEffect, useRef } from 'react';
-import { useLocation, Outlet } from 'react-router';
+import { useRef } from 'react';
+import { Outlet } from 'react-router';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { Reveal } from '../motion/Reveal';
+import { useRouteScroll } from '../../hooks/useRouteScroll';
 
 export function SiteLayout() {
-  const location = useLocation();
   const mainRef = useRef<HTMLElement>(null);
-  const previousPath = useRef(location.pathname);
-
-  useEffect(() => {
-    if (previousPath.current !== location.pathname) {
-      mainRef.current?.focus();
-      previousPath.current = location.pathname;
-    }
-  }, [location.pathname]);
+  useRouteScroll(mainRef);
 
   return (
     <>
