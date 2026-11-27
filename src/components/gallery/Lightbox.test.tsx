@@ -18,13 +18,19 @@ beforeEach(() => {
   root = createRoot(container);
   showModalCalls = 0;
   closeDialogCalls = 0;
-  vi.spyOn(HTMLDialogElement.prototype, 'showModal').mockImplementation(function (this: HTMLDialogElement) {
-    showModalCalls += 1;
-    this.setAttribute('open', '');
+  Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {
+    configurable: true,
+    value: function (this: HTMLDialogElement) {
+      showModalCalls += 1;
+      this.setAttribute('open', '');
+    },
   });
-  vi.spyOn(HTMLDialogElement.prototype, 'close').mockImplementation(function (this: HTMLDialogElement) {
-    closeDialogCalls += 1;
-    this.removeAttribute('open');
+  Object.defineProperty(HTMLDialogElement.prototype, 'close', {
+    configurable: true,
+    value: function (this: HTMLDialogElement) {
+      closeDialogCalls += 1;
+      this.removeAttribute('open');
+    },
   });
   addedListeners = [];
   removedListeners = [];
@@ -43,6 +49,8 @@ beforeEach(() => {
 afterEach(async () => {
   await act(async () => root.unmount());
   vi.restoreAllMocks();
+  delete (HTMLDialogElement.prototype as Partial<HTMLDialogElement>).showModal;
+  delete (HTMLDialogElement.prototype as Partial<HTMLDialogElement>).close;
   container.remove();
 });
 
