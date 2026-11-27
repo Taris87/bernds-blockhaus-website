@@ -29,7 +29,7 @@ export function ContactPage() {
         }
         copy="Ihre Ansprechpartner für Gaststätte und Ferienwohnungen, Islandpferde und Anguszucht."
       />
-      <section className="content-section section-wrap">
+      <section className="content-section section-wrap contact-section">
         <h2>
           Ihre <em>Ansprechpartner.</em>
         </h2>
