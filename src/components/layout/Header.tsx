@@ -13,10 +13,23 @@ export function Header() {
 
     if (!open || !dialog) return;
 
-    dialog.showModal();
-    dialog.querySelector<HTMLButtonElement>('.mobile-menu-close')?.focus();
+    if (!dialog.open) dialog.showModal();
+
+    const closeButton = dialog.querySelector<HTMLButtonElement>('.mobile-menu-close');
+    closeButton?.focus();
+
+    // Native modal dialogs already contain sequential keyboard focus.
+    // This guard also restores focus if script-driven focus escapes the dialog.
+    function keepFocusInside(event: FocusEvent) {
+      if (event.target instanceof Node && !dialog.contains(event.target)) {
+        closeButton?.focus();
+      }
+    }
+
+    document.addEventListener('focusin', keepFocusInside);
 
     return () => {
+      document.removeEventListener('focusin', keepFocusInside);
       if (dialog.open) dialog.close();
       toggleButton?.focus();
     };
