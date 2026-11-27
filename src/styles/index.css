@@ -141,7 +141,7 @@ h2 em, h1 em, blockquote em { color: var(--color-terracotta-text); font-weight: 
   .menu-toggle { display: block; }
   .mobile-menu[open] { position: fixed; z-index: 100; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 22px; padding: 12vw; color: white; background: var(--color-forest); }
   .mobile-menu a { font-family: var(--font-display); font-size: clamp(34px, 8vw, 56px); }
-  .mobile-menu button { position: absolute; top: 24px; right: 5vw; border: 0; color: white; background: transparent; font-size: 32px; }
+  .mobile-menu button { position: absolute; top: 24px; right: 5vw; min-width: 44px; min-height: 44px; border: 0; color: white; background: transparent; font-size: 32px; }
   .intro-section, .two-column, .form-layout { grid-template-columns: 1fr; }
   .intro-copy { margin-top: 0; }
   .pillar-grid { grid-template-columns: 1fr 1fr; }
@@ -154,6 +154,7 @@ h2 em, h1 em, blockquote em { color: var(--color-terracotta-text); font-weight: 
   .brand-mark { width: 34px; height: 34px; }
   .header-strip { padding-inline: 5%; font-size: 8px; }
   .header-strip span:last-child { display: none; }
+  .page-intro h1 { font-size: clamp(42px, 12vw, 58px); overflow-wrap: anywhere; }
   .hero { min-height: 660px; }
   .hero-content { width: 90%; padding: 150px 0 100px 6vw; }
   .intro-section, .content-section { padding-top: 75px; padding-bottom: 75px; }
