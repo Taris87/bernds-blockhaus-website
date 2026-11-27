@@ -1,4 +1,4 @@
-import { useEffect, useRef, type SyntheticEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, type SyntheticEvent } from 'react';
 import type { GalleryItem } from '../../data/gallery';
 import { PlaceholderImage } from '../ui/PlaceholderImage';
 
@@ -16,7 +16,9 @@ export function Lightbox({ item, onClose, onPrevious, onNext }: Props) {
   const lifecycle = useRef(0);
   const callbacks = useRef({ onClose, onPrevious, onNext });
 
-  callbacks.current = { onClose, onPrevious, onNext };
+  useLayoutEffect(() => {
+    callbacks.current = { onClose, onPrevious, onNext };
+  });
 
   useEffect(() => {
     const dialog = dialogRef.current;
