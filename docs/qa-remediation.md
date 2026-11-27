@@ -46,5 +46,5 @@ Offen vor Produktivbetrieb: Backend-Endpunkt und Empfängerlogik, serverseitige 
 ## Testumfang
 
 - Unit Tests: 15 deklarierte Tests (7 Header, 8 Formular).
-- Playwright: 12 deklarierte Tests insgesamt – 8 Mobile-Dialog-/Viewport-Tests, 3 Navigation-/Fallback-Tests und 1 separater Test mit ungültigem HTTPS-Endpunkt.
-- Die Anzahl deklarierter Tests ist nicht gleichbedeutend mit bestandenen Tests. Maßgeblich sind die tatsächlich abgeschlossenen CI-Läufe für den jeweiligen Commit.
+- Playwright: 15 deklarierte Tests insgesamt. Der reguläre Chromium-Lauf umfasst 14 Tests: 11 Mobile-Dialog-/Viewport-Tests und 3 Navigation-/Fallback-Tests. Der separate Lauf mit `playwright.invalid-endpoint.config.ts` umfasst 1 Test mit ungültigem HTTPS-Endpunkt.
+- Run #14 führte `npm run test:e2e` aus: 14/14 Tests im regulären Chromium-Lauf und 1/1 Test im separaten Lauf mit ungültigem HTTPS-Endpunkt bestanden (15/15 insgesamt). Die Anzahl deklarierter Tests ist nicht gleichbedeutend mit bestandenen Tests; maßgeblich sind die tatsächlich abgeschlossenen CI-Läufe für den jeweiligen Commit.
