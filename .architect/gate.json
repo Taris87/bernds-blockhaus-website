@@ -1,0 +1,10 @@
+{
+  "_comment": "Entspricht der CI (pull-request-checks.yml). format:check bewusst nicht enthalten: 38 Dateien auf main sind nicht Prettier-formatiert; eigener Folge-PR, danach hier und in der CI ergänzen.",
+  "steps": [
+    { "name": "typecheck", "cmd": "npm run typecheck" },
+    { "name": "lint", "cmd": "npm run lint" },
+    { "name": "unit-tests", "cmd": "npm test" },
+    { "name": "build", "cmd": "npm run build" },
+    { "name": "e2e-tests", "cmd": "npm run test:e2e" }
+  ]
+}

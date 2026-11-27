@@ -8,3 +8,7 @@ test-results/
 !.env.example
 .DS_Store
 *.log
+
+# WEBSITE ARCHITECT: lokale Gate-Läufe
+.architect/qa/runs/
+.architect/qa/last-gate.json

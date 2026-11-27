@@ -1,0 +1,15 @@
+# Einheitliche LF-Zeilenenden in Repository und Arbeitskopie – auch unter Windows (core.autocrlf=true).
+# Prettier erwartet LF; ohne diese Regel meldet format:check lokal Fehler in fast jeder Datei.
+* text=auto eol=lf
+
+# Binärdateien nie anfassen
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
