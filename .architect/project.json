@@ -1,0 +1,43 @@
+{
+  "id": "bernds-blockhaus-website",
+  "name": "Bernd's Blockhaus",
+  "repository": "https://github.com/Taris87/bernds-blockhaus-website",
+  "localPath": "C:\\Users\\Steven\\OneDrive\\Desktop\\GitHub_Repositorys\\bernds-blockhaus-website",
+  "defaultBranch": "main",
+  "currentBranch": "fix/qa-043-same-route-navigation",
+  "deployment": {
+    "target": "github-pages",
+    "trigger": "push auf main (.github/workflows/deploy.yml) – Merge = Deployment",
+    "url": null
+  },
+  "stack": ["React 19", "TypeScript 6 (strict)", "Vite 8", "Tailwind CSS 4", "React Router 7", "GSAP 3", "Vitest 5", "Testing Library", "Playwright", "ESLint 10", "Prettier 3"],
+  "sourceWebsite": null,
+  "status": "in Arbeit – QA-043",
+  "maturity": {
+    "codeComplete": false,
+    "qaPassed": false,
+    "contentComplete": false,
+    "legalReviewed": false,
+    "productionReady": false,
+    "deploymentApproved": false
+  },
+  "activeAgents": [],
+  "openTasks": [
+    "QA-043 (Issue #4): Query-/Hash-Navigation auf gleicher Route testen",
+    "QA-044 (Issue #5): visuelle Responsive-Prüfung und Screenshot-Regression",
+    "Issue #6: Release-Blocker – Betreiberinhalte, Rechtstexte, Anfrage-Backend (nur Benutzer/Betreiber)",
+    "Issue #7: Repository-Härtung – Branch Protection für main (nur Benutzer)",
+    "Folge-PR: Prettier-Formatierung von 38 Dateien, danach format:check in CI aufnehmen"
+  ],
+  "qaStatus": { "lastGate": null, "lastGateSha": null, "openFindings": [] },
+  "releaseStatus": "nicht freigegeben",
+  "linkedIssues": [4, 5, 6, 7],
+  "pullRequests": [
+    { "number": 1, "state": "CLOSED", "branch": "fix/mobile-menu-and-inquiry" },
+    { "number": 2, "state": "MERGED", "branch": "fix/qa-a11y-ci-navigation" },
+    { "number": 3, "state": "MERGED", "branch": "fix/qa-022-lightbox-qa-023-responsive", "mergeCommit": "b231c4db4c2465741ee5be8eacb86e100e73e44a" }
+  ],
+  "lastChanges": [
+    "2026-11-27: Projekt in WEBSITE ARCHITECT eingebunden, .gitattributes (LF) ergänzt"
+  ]
+}
