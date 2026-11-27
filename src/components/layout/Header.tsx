@@ -46,6 +46,38 @@ export function Header() {
     setOpen(false);
   }
 
+  function handleDialogKeyDown(
+    event: React.KeyboardEvent<HTMLDialogElement>,
+  ) {
+    if (event.key !== 'Tab') return;
+
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const focusableElements = Array.from(
+      dialog.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ),
+    ).filter(
+      (element) =>
+        !element.hasAttribute('hidden') &&
+        element.getAttribute('aria-hidden') !== 'true',
+    );
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (!firstElement || !lastElement) return;
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+      event.preventDefault();
+      lastElement.focus();
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
+    }
+  }
+
   return (
     <>
       <header className="site-header">
@@ -97,6 +129,7 @@ export function Header() {
         className="mobile-menu"
         aria-label="Mobile Navigation"
         onCancel={handleCancel}
+        onKeyDown={handleDialogKeyDown}
       >
         <button
           className="mobile-menu-close"
