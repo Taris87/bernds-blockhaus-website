@@ -1,4 +1,4 @@
-import { StrictMode } from 'react';
+import { StrictMode, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -29,12 +29,7 @@ beforeEach(() => {
     configurable: true,
     value: function (this: HTMLDialogElement) {
       closeDialogCalls += 1;
-      const restoreTarget = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       this.removeAttribute('open');
-      if (restoreTarget && this.contains(restoreTarget)) {
-        const trigger = Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Gallery trigger');
-        trigger?.focus();
-      }
     },
   });
   addedListeners = [];
@@ -59,54 +54,92 @@ afterEach(async () => {
   container.remove();
 });
 
-function renderLightbox(onClose = vi.fn()) {
-  const item = galleryItems[0]!;
-  act(() => root.render(<StrictMode><button type="button">Gallery trigger</button><Lightbox item={item} onClose={onClose} onPrevious={vi.fn()} onNext={vi.fn()} /></StrictMode>));
-  return onClose;
+function GalleryHarness() {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <>
+      <button type="button" onClick={() => setIsOpen(true)}>Gallery trigger</button>
+      {isOpen && (
+        <Lightbox
+          item={galleryItems[0]!}
+          onClose={() => setIsOpen(false)}
+          onPrevious={vi.fn()}
+          onNext={vi.fn()}
+        />
+      )}
+    </>
+  );
+}
+
+async function renderGallery(strict = true) {
+  await act(async () => {
+    root.render(strict ? <StrictMode><GalleryHarness /></StrictMode> : <GalleryHarness />);
+  });
+  const trigger = container.querySelector<HTMLButtonElement>('button');
+  expect(trigger).not.toBeNull();
+  await act(async () => trigger?.click());
+  await act(async () => { await Promise.resolve(); });
+  return trigger!;
 }
 
 describe('Lightbox Strict Mode lifecycle', () => {
   it('activates the dialog once after Strict Mode effect replay and removes its key listener', async () => {
-    renderLightbox();
-    await act(async () => { await Promise.resolve(); });
+    const trigger = await renderGallery(true);
 
     expect(showModalCalls).toBe(1);
     expect(container.querySelector('dialog')).toHaveAttribute('open');
     expect(addedListeners.length).toBe(2);
     expect(removedListeners.length).toBe(1);
 
-    await act(async () => root.unmount());
-    await act(async () => { await Promise.resolve(); });
-    expect(removedListeners.length).toBe(2);
-    expect(closeDialogCalls).toBe(1);
-  });
-
-  it('does not focus the detached trigger after a final unmount', async () => {
-    const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus');
-    renderLightbox();
-    await act(async () => { await Promise.resolve(); });
-    const trigger = Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Gallery trigger');
-    expect(trigger).toBeDefined();
-
-    await act(async () => root.unmount());
-    await act(async () => { await Promise.resolve(); });
-
-    expect(trigger?.isConnected).toBe(false);
-    expect(focusSpy.mock.instances.some((element) => element === trigger)).toBe(false);
-    expect(document.activeElement).not.toBe(trigger);
-  });
-
-  it('restores focus to the connected trigger after an ordinary close', async () => {
-    renderLightbox();
-    await act(async () => { await Promise.resolve(); });
-    const trigger = Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Gallery trigger');
-    expect(trigger).toBeDefined();
-
     const close = container.querySelector<HTMLButtonElement>('.lightbox-close');
     await act(async () => close?.click());
     await act(async () => { await Promise.resolve(); });
 
-    expect(trigger?.isConnected).toBe(true);
+    expect(closeDialogCalls).toBe(1);
+    expect(removedListeners.length).toBe(2);
+    expect(trigger.isConnected).toBe(true);
     expect(document.activeElement).toBe(trigger);
+  });
+
+  it('does not focus the detached trigger after unmounting while the dialog is open', async () => {
+    const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus');
+    const trigger = await renderGallery(true);
+
+    expect(container.querySelector('dialog[open]')).not.toBeNull();
+    await act(async () => {
+      root.render(<p>New route content</p>);
+    });
+    await act(async () => { await Promise.resolve(); });
+
+    expect(trigger.isConnected).toBe(false);
+    expect(focusSpy.mock.instances.some((element) => element === trigger)).toBe(false);
+    expect(document.activeElement).not.toBe(trigger);
+    expect(container.querySelector('dialog')).toBeNull();
+    expect(removedListeners.length).toBe(2);
+  });
+
+  it('unmounts and remounts a gallery with a fresh trigger and no stale focus restore', async () => {
+    const oldTrigger = await renderGallery(true);
+
+    await act(async () => {
+      root.render(<p>Another route</p>);
+    });
+    await act(async () => { await Promise.resolve(); });
+    expect(oldTrigger.isConnected).toBe(false);
+    expect(document.activeElement).not.toBe(oldTrigger);
+
+    await act(async () => {
+      root.render(<StrictMode><GalleryHarness /></StrictMode>);
+    });
+    const newTrigger = container.querySelector<HTMLButtonElement>('button');
+    expect(newTrigger).not.toBeNull();
+    expect(newTrigger).not.toBe(oldTrigger);
+
+    await act(async () => newTrigger?.click());
+    await act(async () => { await Promise.resolve(); });
+
+    expect(container.querySelector('dialog[open]')).not.toBeNull();
+    expect(showModalCalls).toBe(2);
+    expect(document.activeElement).not.toBe(oldTrigger);
   });
 });
