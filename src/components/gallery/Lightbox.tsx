@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type SyntheticEvent } from 'react';
 import type { GalleryItem } from '../../data/gallery';
 import { PlaceholderImage } from '../ui/PlaceholderImage';
 
@@ -65,7 +65,7 @@ export function Lightbox({ item, onClose, onPrevious, onNext }: Props) {
     };
   }, []);
 
-  function handleCancel(event: React.SyntheticEvent<HTMLDialogElement>) {
+  function handleCancel(event: SyntheticEvent<HTMLDialogElement>) {
     event.preventDefault();
     callbacks.current.onClose();
   }
