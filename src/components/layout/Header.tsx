@@ -9,6 +9,8 @@ export function Header() {
 
   useEffect(() => {
     const dialog = dialogRef.current;
+    const toggleButton = toggleRef.current;
+
     if (!open || !dialog) return;
 
     dialog.showModal();
@@ -16,7 +18,7 @@ export function Header() {
 
     return () => {
       if (dialog.open) dialog.close();
-      toggleRef.current?.focus();
+      toggleButton?.focus();
     };
   }, [open]);
 
@@ -87,11 +89,7 @@ export function Header() {
         </button>
         <nav aria-label="Menü">
           {site.navigation.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              onClick={() => setOpen(false)}
-            >
+            <NavLink key={item.to} to={item.to} onClick={() => setOpen(false)}>
               {item.label}
             </NavLink>
           ))}

@@ -9,7 +9,9 @@ afterEach(() => {
 });
 
 function submitForm() {
-  const form = screen.getByRole('button', { name: /Anfrage senden/i }).closest('form');
+  const form = screen
+    .getByRole('button', { name: /Anfrage senden/i })
+    .closest('form');
   if (!form) throw new Error('Inquiry form was not found');
   fireEvent.submit(form);
   return form;
@@ -39,13 +41,17 @@ describe('ApartmentInquiryForm', () => {
   it('explains the fallback when no sending endpoint is configured', async () => {
     vi.stubEnv('VITE_INQUIRY_ENDPOINT', '');
 
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+
     render(<ApartmentInquiryForm />);
     submitForm();
 
     expect(await screen.findByRole('status')).toHaveTextContent(
       /noch nicht mit einem Versanddienst verbunden/i,
     );
-    expect(fetch).not.toHaveBeenCalled();
+
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('rejects non-HTTPS endpoints before sending', async () => {
@@ -80,12 +86,17 @@ describe('ApartmentInquiryForm', () => {
     expect(options.body).toBeInstanceOf(FormData);
     expect((options.body as FormData).get('name')).toBe('Erika Muster');
     expect((options.body as FormData).get('email')).toBe('erika@example.com');
-    expect(form.querySelector<HTMLInputElement>('input[name="name"]')?.value).toBe('');
+    expect(
+      form.querySelector<HTMLInputElement>('input[name="name"]')?.value,
+    ).toBe('');
   });
 
   it('keeps entered values and shows an error after an HTTP failure', async () => {
     vi.stubEnv('VITE_INQUIRY_ENDPOINT', 'https://example.com/inquiry');
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500 }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: false, status: 500 }),
+    );
 
     render(<ApartmentInquiryForm />);
     fillRequiredFields();
@@ -94,15 +105,20 @@ describe('ApartmentInquiryForm', () => {
     expect(await screen.findByRole('status')).toHaveTextContent(
       /konnte nicht versendet werden/i,
     );
-    expect(form.querySelector<HTMLInputElement>('input[name="name"]')?.value).toBe(
-      'Erika Muster',
-    );
-    expect(screen.queryByText(/erfolgreich versendet/i)).not.toBeInTheDocument();
+    expect(
+      form.querySelector<HTMLInputElement>('input[name="name"]')?.value,
+    ).toBe('Erika Muster');
+    expect(
+      screen.queryByText(/erfolgreich versendet/i),
+    ).not.toBeInTheDocument();
   });
 
   it('keeps entered values and shows an error after a network failure', async () => {
     vi.stubEnv('VITE_INQUIRY_ENDPOINT', 'https://example.com/inquiry');
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockRejectedValue(new Error('Network error')),
+    );
 
     render(<ApartmentInquiryForm />);
     fillRequiredFields();
@@ -111,35 +127,43 @@ describe('ApartmentInquiryForm', () => {
     expect(await screen.findByRole('status')).toHaveTextContent(
       /konnte nicht versendet werden/i,
     );
-    expect(form.querySelector<HTMLInputElement>('input[name="name"]')?.value).toBe(
-      'Erika Muster',
-    );
+    expect(
+      form.querySelector<HTMLInputElement>('input[name="name"]')?.value,
+    ).toBe('Erika Muster');
   });
 
   it('shows a loading state and prevents duplicate submissions', async () => {
     vi.stubEnv('VITE_INQUIRY_ENDPOINT', 'https://example.com/inquiry');
 
     let resolveRequest!: (value: { ok: boolean; status: number }) => void;
-    const pendingRequest = new Promise<{ ok: boolean; status: number }>((resolve) => {
-      resolveRequest = resolve;
-    });
+    const pendingRequest = new Promise<{ ok: boolean; status: number }>(
+      (resolve) => {
+        resolveRequest = resolve;
+      },
+    );
     const fetchMock = vi.fn().mockReturnValue(pendingRequest);
     vi.stubGlobal('fetch', fetchMock);
 
     render(<ApartmentInquiryForm />);
     fillRequiredFields();
-    const form = screen.getByRole('button', { name: /Anfrage senden/i }).closest('form');
+    const form = screen
+      .getByRole('button', { name: /Anfrage senden/i })
+      .closest('form');
     if (!form) throw new Error('Inquiry form was not found');
 
     fireEvent.submit(form);
-    expect(screen.getByRole('button', { name: /Wird gesendet/i })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: /Wird gesendet/i }),
+    ).toBeDisabled();
 
     fireEvent.submit(form);
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
     resolveRequest({ ok: true, status: 200 });
     await waitFor(() => {
-      expect(screen.getByRole('status')).toHaveTextContent(/erfolgreich versendet/i);
+      expect(screen.getByRole('status')).toHaveTextContent(
+        /erfolgreich versendet/i,
+      );
     });
   });
 });
