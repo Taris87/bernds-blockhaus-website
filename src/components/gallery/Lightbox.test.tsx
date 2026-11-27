@@ -77,7 +77,10 @@ async function renderGallery(strict = true) {
   });
   const trigger = container.querySelector<HTMLButtonElement>('button');
   expect(trigger).not.toBeNull();
-  await act(async () => trigger?.click());
+  await act(async () => {
+    trigger?.focus();
+    trigger?.click();
+  });
   await act(async () => { await Promise.resolve(); });
   return trigger!;
 }
