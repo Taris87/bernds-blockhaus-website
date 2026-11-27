@@ -94,9 +94,7 @@ test.describe('mobile navigation dialog', () => {
     await page.getByRole('button', { name: 'Menü schließen' }).click();
 
     await expect(page.getByRole('dialog', { name: 'Mobile Navigation' })).not.toBeVisible();
-    await expect(page.locator('main#main')).toBeFocused();
-    await expect(page.locator('main#main h1')).toBeVisible();
-    await expect(toggle).not.toBeFocused();
+    await expect(toggle).toBeFocused();
   });
 
   test('keeps programmatic focus inside the dialog', async ({ page }) => {
@@ -113,7 +111,9 @@ test.describe('mobile navigation dialog', () => {
 
     await expect(page).toHaveURL(/\/bernds-blockhaus-website\/kontakt\/?$/);
     await expect(page.getByRole('dialog', { name: 'Mobile Navigation' })).not.toBeVisible();
-    await expect(toggle).toBeFocused();
+    await expect(page.locator('main#main')).toBeFocused();
+    await expect(page.locator('main#main h1')).toBeVisible();
+    await expect(toggle).not.toBeFocused();
   });
 
   for (const width of [320, 390, 768, 900]) {
