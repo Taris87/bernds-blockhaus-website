@@ -7,8 +7,8 @@ import { galleryItems } from '../../data/gallery';
 
 let container: HTMLDivElement;
 let root: ReturnType<typeof createRoot>;
-let showModal: ReturnType<typeof vi.fn>;
-let closeDialog: ReturnType<typeof vi.fn>;
+let showModalCalls: number;
+let closeDialogCalls: number;
 let addedListeners: EventListener[];
 let removedListeners: EventListener[];
 
@@ -16,14 +16,14 @@ beforeEach(() => {
   container = document.createElement('div');
   document.body.append(container);
   root = createRoot(container);
-  showModal = vi.fn();
-  closeDialog = vi.fn();
+  showModalCalls = 0;
+  closeDialogCalls = 0;
   vi.spyOn(HTMLDialogElement.prototype, 'showModal').mockImplementation(function (this: HTMLDialogElement) {
-    showModal();
+    showModalCalls += 1;
     this.setAttribute('open', '');
   });
   vi.spyOn(HTMLDialogElement.prototype, 'close').mockImplementation(function (this: HTMLDialogElement) {
-    closeDialog();
+    closeDialogCalls += 1;
     this.removeAttribute('open');
   });
   addedListeners = [];
@@ -57,7 +57,7 @@ describe('Lightbox Strict Mode lifecycle', () => {
     renderLightbox();
     await act(async () => { await Promise.resolve(); });
 
-    expect(showModal).toHaveBeenCalledTimes(1);
+    expect(showModalCalls).toBe(1);
     expect(container.querySelector('dialog')).toHaveAttribute('open');
     expect(addedListeners.length).toBe(2);
     expect(removedListeners.length).toBe(1);
@@ -65,7 +65,7 @@ describe('Lightbox Strict Mode lifecycle', () => {
     await act(async () => root.unmount());
     await act(async () => { await Promise.resolve(); });
     expect(removedListeners.length).toBe(2);
-    expect(closeDialog).toHaveBeenCalledTimes(1);
+    expect(closeDialogCalls).toBe(1);
   });
 
   it('does not focus the detached trigger after a final unmount', async () => {
