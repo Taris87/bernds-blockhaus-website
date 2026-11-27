@@ -9,7 +9,7 @@ test.describe('mobile navigation dialog', () => {
   });
 
 
-  test('does not steal focus during initial Strict Mode effect replay', async ({ page }) => {
+  test('keeps focus on the menu toggle while the dialog is initially closed', async ({ page }) => {
     const toggle = page.getByRole('button', { name: 'Menü öffnen' });
     await toggle.focus();
     await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())));
