@@ -1,12 +1,14 @@
 import { expect, test } from '@playwright/test';
 
+const pagesBase = '/bernds-blockhaus-website';
+
 test.describe('mobile navigation dialog', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/bernds-blockhaus-website/');
+    await page.goto(`${pagesBase}/`);
   });
 
-  test('opens the dialog, supports keyboard navigation and closes on Escape', async ({ page }) => {
+  test('uses native dialog keyboard navigation and restores focus after Escape', async ({ page }) => {
     const toggle = page.getByRole('button', { name: 'Menü öffnen' });
     await toggle.click();
 
@@ -25,6 +27,15 @@ test.describe('mobile navigation dialog', () => {
     await expect(toggle).toBeFocused();
   });
 
+  test('restores focus after the close button is activated', async ({ page }) => {
+    const toggle = page.getByRole('button', { name: 'Menü öffnen' });
+    await toggle.click();
+    await page.getByRole('button', { name: 'Menü schließen' }).click();
+
+    await expect(page.getByRole('dialog', { name: 'Mobile Navigation' })).not.toBeVisible();
+    await expect(toggle).toBeFocused();
+  });
+
   test('keeps programmatic focus inside the dialog', async ({ page }) => {
     await page.getByRole('button', { name: 'Menü öffnen' }).click();
     const closeButton = page.getByRole('button', { name: 'Menü schließen' });
@@ -32,10 +43,14 @@ test.describe('mobile navigation dialog', () => {
     await expect(closeButton).toBeFocused();
   });
 
-  test('closes when a mobile navigation link is selected', async ({ page }) => {
-    await page.getByRole('button', { name: 'Menü öffnen' }).click();
+  test('closes after link navigation and restores focus to the menu toggle', async ({ page }) => {
+    const toggle = page.getByRole('button', { name: 'Menü öffnen' });
+    await toggle.click();
     await page.getByRole('link', { name: 'Anfragen ↗' }).click();
+
+    await expect(page).toHaveURL(/\/bernds-blockhaus-website\/kontakt\/?$/);
     await expect(page.getByRole('dialog', { name: 'Mobile Navigation' })).not.toBeVisible();
+    await expect(toggle).toBeFocused();
   });
 
   for (const width of [320, 390, 768, 900]) {
