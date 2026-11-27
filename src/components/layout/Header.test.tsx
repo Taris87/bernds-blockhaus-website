@@ -1,11 +1,12 @@
 import { StrictMode } from 'react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { Header } from './Header';
 
 beforeEach(() => {
+  // JSDOM does not implement the browser's native modal-dialog behavior.
+  // Real Tab/Shift+Tab semantics are verified in Playwright/Chromium.
   HTMLDialogElement.prototype.showModal = function () {
     this.setAttribute('open', '');
   };
@@ -30,31 +31,14 @@ function renderHeader() {
 }
 
 describe('Header mobile navigation', () => {
-  it('opens the native modal dialog and moves focus to the close button', () => {
+  it('opens the dialog and moves focus to the close button', () => {
     renderHeader();
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
 
     const dialog = screen.getByRole('dialog', { name: 'Mobile Navigation' });
     expect(dialog).toHaveAttribute('open');
-    expect(
-      screen.getByRole('button', { name: 'Menü schließen' }),
-    ).toHaveFocus();
-  });
-
-  it('uses native sequential focus order for Tab and Shift+Tab', async () => {
-    const user = userEvent.setup();
-    renderHeader();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
-    const closeButton = screen.getByRole('button', { name: 'Menü schließen' });
-    const links = screen.getAllByRole('link', { name: /Gaststätte|Ferienwohnungen|Eichwieserhof|Anfragen/ });
-
-    expect(closeButton).toHaveFocus();
-    await user.tab();
-    expect(links[0]).toHaveFocus();
-    await user.tab({ shift: true });
-    expect(closeButton).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Menü schließen' })).toHaveFocus();
   });
 
   it('closes the dialog with Escape and returns focus to the toggle button', () => {
@@ -68,9 +52,7 @@ describe('Header mobile navigation', () => {
       new Event('cancel', { bubbles: false, cancelable: true }),
     );
 
-    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute(
-      'open',
-    );
+    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open');
     expect(toggle).toHaveFocus();
   });
 
@@ -81,9 +63,7 @@ describe('Header mobile navigation', () => {
     fireEvent.click(toggle);
     fireEvent.click(screen.getByRole('button', { name: 'Menü schließen' }));
 
-    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute(
-      'open',
-    );
+    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open');
     expect(toggle).toHaveFocus();
   });
 
@@ -97,14 +77,11 @@ describe('Header mobile navigation', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
-    expect(
-      screen.getByRole('dialog', { name: 'Mobile Navigation' }),
-    ).toHaveAttribute('open');
+    expect(screen.getByRole('dialog', { name: 'Mobile Navigation' })).toHaveAttribute('open');
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü schließen' }));
-    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute(
-      'open',
-    );
+    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open');
+    expect(screen.getByRole('button', { name: 'Menü öffnen' })).toHaveFocus();
   });
 
   it('returns focus to the dialog when script-driven focus escapes', () => {
@@ -112,7 +89,6 @@ describe('Header mobile navigation', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
     const closeButton = screen.getByRole('button', { name: 'Menü schließen' });
-
     screen.getByTestId('outside-control').focus();
 
     expect(closeButton).toHaveFocus();
@@ -121,12 +97,12 @@ describe('Header mobile navigation', () => {
   it('closes the dialog when a navigation link is selected', () => {
     renderHeader();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
+    const toggle = screen.getByRole('button', { name: 'Menü öffnen' });
+    fireEvent.click(toggle);
     fireEvent.click(screen.getByRole('link', { name: 'Anfragen ↗' }));
 
-    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute(
-      'open',
-    );
+    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open');
+    expect(toggle).toHaveFocus();
   });
 
   it('exposes the menu links inside a labelled navigation landmark', () => {
@@ -135,9 +111,6 @@ describe('Header mobile navigation', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
 
     expect(screen.getByRole('navigation', { name: 'Menü' })).toBeInTheDocument();
-    expect(screen.getByRole('dialog')).toHaveAttribute(
-      'aria-label',
-      'Mobile Navigation',
-    );
+    expect(screen.getByRole('dialog')).toHaveAttribute('aria-label', 'Mobile Navigation');
   });
 });
