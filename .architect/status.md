@@ -10,8 +10,8 @@ _Zuletzt aktualisiert: 2026-11-27 durch Orchestrator_
 ## Reifegrad
 | Stufe | Stand | Beleg |
 |---|---|---|
-| 1. Code technisch fertig | offen | |
-| 2. QA bestanden | offen | |
+| 1. Code technisch fertig | ja (QA-043) | Gate PASS für 4735a55 |
+| 2. QA bestanden | CONDITIONAL PASS | `.architect/qa/qa-report-2026-11-27.md` |
 | 3. Inhaltlich vollständig | **nein** | Issue #6, PLACEHOLDERS.md |
 | 4. Rechtlich geprüft | offen (nur durch Benutzer) | Issue #6 |
 | 5. Produktionsbereit | **nein** | |
@@ -20,9 +20,13 @@ _Zuletzt aktualisiert: 2026-11-27 durch Orchestrator_
 ## Agentenergebnisse
 | Datum | Agent | Aufgabe | Status | Bericht |
 |---|---|---|---|---|
+| 2026-11-27 | frontend-architect | QA-043 Tests (8392d60) | CONDITIONAL PASS – Gate rot nur durch vorbestehenden 320px-Overflow | Orchestrator-Prüfung: App-Code = main, CI-Lauf 46023052165 grün |
+| 2026-11-27 | frontend-architect | 320px-Overflow beheben (4735a55) | PASS – Gate grün | Ursache: h3 „Ferienwohnungen“ (min-content 330px) im 1fr-Grid |
+| 2026-11-27 | qa-engineer | unabhängige QA, HEAD 4735a55 | CONDITIONAL PASS – nur niedrige Befunde | `.architect/qa/qa-report-2026-11-27.md` |
 
 ## Offene Aufgaben / Blocker
-- QA-043 (Issue #4) – in Arbeit
+- QA-043 (Issue #4) – erledigt, PR zur Freigabe
+- QA-004: sitemap.xml/robots.txt fehlen (vorbestehend, Folge-PR)
 - QA-044 (Issue #5)
 - Issue #6 Release-Blocker (Betreiber liefert Inhalte/Rechtstexte)
 - Issue #7 Branch Protection (Benutzer)
