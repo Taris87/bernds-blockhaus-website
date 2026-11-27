@@ -9,16 +9,23 @@ afterEach(() => {
 describe('ApartmentInquiryForm', () => {
   it('renders required inquiry fields', () => {
     render(<ApartmentInquiryForm />);
+
     expect(screen.getByLabelText(/Name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/E-Mail/i)).toBeInTheDocument();
   });
 
   it('explains the fallback when no sending endpoint is configured', async () => {
     vi.stubEnv('VITE_INQUIRY_ENDPOINT', '');
+
     render(<ApartmentInquiryForm />);
 
-    const submitButton = screen.getByRole('button', { name: /Anfrage senden/i });
-    fireEvent.submit(submitButton.closest('form')!);
+    fireEvent.submit(
+      screen
+        .getByRole('button', {
+          name: /Anfrage senden/i,
+        })
+        .closest('form')!,
+    );
 
     expect(await screen.findByRole('status')).toHaveTextContent(
       /noch nicht mit einem Versanddienst verbunden/i,

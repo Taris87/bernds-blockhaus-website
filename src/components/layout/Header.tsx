@@ -4,25 +4,29 @@ import { site } from '../../data/site';
 
 export function Header() {
   const [open, setOpen] = useState(false);
-  const menuRef = useRef<HTMLElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) return;
 
     const menu = menuRef.current;
-    const closeButton = menu?.querySelector<HTMLButtonElement>('.mobile-menu-close');
+    const toggleButton = toggleRef.current;
+    const closeButton =
+      menu?.querySelector<HTMLButtonElement>('.mobile-menu-close');
+
     closeButton?.focus();
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         event.preventDefault();
         setOpen(false);
-        toggleRef.current?.focus();
+        toggleButton?.focus();
         return;
       }
 
       if (event.key !== 'Tab' || !menu) return;
+
       const focusable = menu.querySelectorAll<HTMLElement>(
         'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
       );
@@ -39,9 +43,10 @@ export function Header() {
     }
 
     document.addEventListener('keydown', handleKeyDown);
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      toggleRef.current?.focus();
+      toggleButton?.focus();
     };
   }, [open]);
 
@@ -53,17 +58,28 @@ export function Header() {
           <span>[PLATZHALTER: Region]</span>
         </div>
         <div className="header-inner">
-          <Link to="/" className="brand" onClick={() => setOpen(false)} aria-label="Bernd’s Blockhaus – Startseite">
+          <Link
+            to="/"
+            className="brand"
+            onClick={() => setOpen(false)}
+            aria-label="Bernd’s Blockhaus – Startseite"
+          >
             <span className="brand-mark">BB</span>
             <strong>Bernd’s Blockhaus</strong>
           </Link>
           <nav className="primary-nav" aria-label="Hauptnavigation">
             {site.navigation.map((item) => (
-              <NavLink key={item.to} to={item.to} className={({ isActive }) => isActive ? 'active' : ''}>
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) => (isActive ? 'active' : '')}
+              >
                 {item.label}
               </NavLink>
             ))}
-            <NavLink className="nav-cta" to="/kontakt">Anfragen</NavLink>
+            <NavLink className="nav-cta" to="/kontakt">
+              Anfragen
+            </NavLink>
           </nav>
           <button
             ref={toggleRef}
@@ -80,24 +96,39 @@ export function Header() {
         </div>
       </header>
       {open && (
-        <nav
+        <div
           ref={menuRef}
           id="mobile-navigation"
           className="mobile-menu"
-          aria-label="Mobile Navigation"
           role="dialog"
           aria-modal="true"
+          aria-label="Mobile Navigation"
         >
-          <button className="mobile-menu-close" type="button" aria-label="Menü schließen" onClick={() => setOpen(false)}>
+          <button
+            className="mobile-menu-close"
+            type="button"
+            aria-label="Menü schließen"
+            onClick={() => setOpen(false)}
+          >
             ×
           </button>
-          {site.navigation.map((item) => (
-            <NavLink key={item.to} to={item.to} onClick={() => setOpen(false)}>
-              {item.label}
-            </NavLink>
-          ))}
-          <Link to="/kontakt" onClick={() => setOpen(false)}>Anfragen ↗</Link>
-        </nav>
+
+          <nav aria-label="Menü">
+            {site.navigation.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                onClick={() => setOpen(false)}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+
+            <Link to="/kontakt" onClick={() => setOpen(false)}>
+              Anfragen ↗
+            </Link>
+          </nav>
+        </div>
       )}
     </>
   );
