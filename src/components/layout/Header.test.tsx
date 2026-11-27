@@ -1,7 +1,16 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { Header } from './Header';
+
+beforeEach(() => {
+  HTMLDialogElement.prototype.showModal = function () {
+    this.setAttribute('open', '');
+  };
+  HTMLDialogElement.prototype.close = function () {
+    this.removeAttribute('open');
+  };
+});
 
 afterEach(() => {
   cleanup();
@@ -16,72 +25,52 @@ function renderHeader() {
 }
 
 describe('Header mobile navigation', () => {
-  it('opens the menu and moves focus to the close button', () => {
+  it('opens the native modal dialog and moves focus to the close button', () => {
     renderHeader();
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
 
-    expect(
-      screen.getByRole('dialog', { name: 'Mobile Navigation' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Menü schließen' }),
-    ).toHaveFocus();
+    const dialog = screen.getByRole('dialog', { name: 'Mobile Navigation' });
+    expect(dialog).toHaveAttribute('open');
+    expect(screen.getByRole('button', { name: 'Menü schließen' })).toHaveFocus();
   });
 
-  it('closes the menu with Escape and returns focus to the toggle button', () => {
+  it('closes the dialog with Escape and returns focus to the toggle button', () => {
     renderHeader();
 
     const toggle = screen.getByRole('button', { name: 'Menü öffnen' });
     fireEvent.click(toggle);
-    fireEvent.keyDown(document, { key: 'Escape' });
 
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    fireEvent.cancel(screen.getByRole('dialog', { name: 'Mobile Navigation' }));
+
+    expect(screen.queryByRole('dialog')).not.toHaveAttribute('open');
     expect(toggle).toHaveFocus();
   });
 
-  it('closes the menu when a navigation link is selected', () => {
+  it('closes the dialog when the close button is selected', () => {
+    renderHeader();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Menü schließen' }));
+
+    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open');
+  });
+
+  it('closes the dialog when a navigation link is selected', () => {
     renderHeader();
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
     fireEvent.click(screen.getByRole('link', { name: 'Anfragen ↗' }));
 
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open');
   });
 
-  it('keeps keyboard focus inside the menu when tabbing forward from the last item', () => {
+  it('exposes the menu links inside a labelled navigation landmark', () => {
     renderHeader();
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
 
-    const dialog = screen.getByRole('dialog');
-    const focusable = dialog.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    );
-    const first = focusable.item(0);
-    const last = focusable.item(focusable.length - 1);
-
-    last.focus();
-    fireEvent.keyDown(document, { key: 'Tab' });
-
-    expect(first).toHaveFocus();
-  });
-
-  it('keeps keyboard focus inside the menu when tabbing backward from the first item', () => {
-    renderHeader();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
-
-    const dialog = screen.getByRole('dialog');
-    const focusable = dialog.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    );
-    const first = focusable.item(0);
-    const last = focusable.item(focusable.length - 1);
-
-    first.focus();
-    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
-
-    expect(last).toHaveFocus();
+    expect(screen.getByRole('navigation', { name: 'Menü' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toHaveAttribute('aria-label', 'Mobile Navigation');
   });
 });
