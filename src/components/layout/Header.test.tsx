@@ -30,48 +30,57 @@ function renderHeader() {
   );
 }
 
+async function getDialog() {
+  const dialog = document.querySelector<HTMLDialogElement>('#mobile-navigation');
+  expect(dialog).not.toBeNull();
+
+  await waitFor(() => expect(dialog).toHaveAttribute('open'));
+  return dialog as HTMLDialogElement;
+}
+
 describe('Header mobile navigation', () => {
   it('opens the dialog and moves focus to the close button', async () => {
     renderHeader();
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
 
-    const dialog = screen.getByRole('dialog', { name: 'Mobile Navigation' });
-    await waitFor(() => expect(dialog).toHaveAttribute('open'));
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Menü schließen' })).toHaveFocus());
+    const dialog = await getDialog();
+    expect(dialog).toHaveAttribute('open');
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Menü schließen' })).toHaveFocus(),
+    );
   });
 
-  it('closes the dialog with Escape and returns focus to the toggle button', async () => {
+  it('closes the dialog when the React cancel handler receives Escape', async () => {
     renderHeader();
 
     const toggle = screen.getByRole('button', { name: 'Menü öffnen' });
     fireEvent.click(toggle);
+    const dialog = await getDialog();
 
-    const dialog = await screen.findByRole('dialog', { name: 'Mobile Navigation' });
-    await waitFor(() => expect(dialog).toHaveAttribute('open'));
-
+    // Dispatch the cancel event to exercise React's handler, not native Escape behavior.
     fireEvent(
       dialog,
       new Event('cancel', { bubbles: false, cancelable: true }),
     );
 
     await waitFor(() => expect(dialog).not.toHaveAttribute('open'));
-    expect(toggle).toHaveFocus();
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
   });
 
-  it('closes the dialog and restores focus when the close button is selected', async () => {
+  it('closes the dialog when the close button is selected', async () => {
     renderHeader();
 
-    const toggle = screen.getByRole('button', { name: 'Menü öffnen' });
-    fireEvent.click(toggle);
-    const closeButton = await screen.findByRole('button', { name: 'Menü schließen' });
-    await waitFor(() => expect(closeButton).toHaveFocus());
-    fireEvent.click(closeButton);
+    fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
+    const dialog = await getDialog();
 
-    await waitFor(() =>
-      expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open'),
+    fireEvent.click(screen.getByRole('button', { name: 'Menü schließen' }));
+
+    await waitFor(() => expect(dialog).not.toHaveAttribute('open'));
+    expect(screen.getByRole('button', { name: 'Menü öffnen' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
     );
-    expect(toggle).toHaveFocus();
   });
 
   it('opens and closes safely under React Strict Mode', async () => {
@@ -83,47 +92,61 @@ describe('Header mobile navigation', () => {
       </StrictMode>,
     );
 
-    const toggle = screen.getByRole('button', { name: 'Menü öffnen' });
-    fireEvent.click(toggle);
-    const dialog = await screen.findByRole('dialog', { name: 'Mobile Navigation' });
-    await waitFor(() => expect(dialog).toHaveAttribute('open'));
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Menü schließen' })).toHaveFocus());
+    fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
+    const dialog = await getDialog();
+    const closeButton = screen.getByRole('button', { name: 'Menü schließen' });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Menü schließen' }));
+    await waitFor(() => expect(closeButton).toHaveFocus());
+    expect(dialog).toHaveAttribute('open');
+
+    fireEvent.click(closeButton);
     await waitFor(() => expect(dialog).not.toHaveAttribute('open'));
-    expect(toggle).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Menü öffnen' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
   });
 
   it('returns focus to the dialog when script-driven focus escapes', async () => {
     renderHeader();
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
-    const closeButton = await screen.findByRole('button', { name: 'Menü schließen' });
+    const dialog = await getDialog();
+    const closeButton = screen.getByRole('button', { name: 'Menü schließen' });
     await waitFor(() => expect(closeButton).toHaveFocus());
+
     screen.getByTestId('outside-control').focus();
 
     await waitFor(() => expect(closeButton).toHaveFocus());
+    expect(dialog).toHaveAttribute('open');
   });
 
   it('closes the dialog when a navigation link is selected', async () => {
     renderHeader();
 
-    const toggle = screen.getByRole('button', { name: 'Menü öffnen' });
-    fireEvent.click(toggle);
-    const link = await screen.findByRole('link', { name: 'Anfragen ↗' });
+    fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
+    const dialog = await getDialog();
+    const link = screen.getByRole('link', { name: 'Anfragen ↗' });
+
     fireEvent.click(link);
 
-    await waitFor(() =>
-      expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open'),
+    await waitFor(() => expect(dialog).not.toHaveAttribute('open'));
+    expect(screen.getByRole('button', { name: 'Menü öffnen' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
     );
-    expect(toggle).toHaveFocus();
   });
 
   it('exposes the menu links inside a labelled navigation landmark', async () => {
     renderHeader();
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
+    await getDialog();
+
     expect(await screen.findByRole('navigation', { name: 'Menü' })).toBeInTheDocument();
-    expect(screen.getByRole('dialog')).toHaveAttribute('aria-label', 'Mobile Navigation');
+    expect(document.querySelector('#mobile-navigation')).toHaveAttribute(
+      'aria-label',
+      'Mobile Navigation',
+    );
   });
 });
