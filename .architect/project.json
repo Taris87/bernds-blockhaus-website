@@ -24,7 +24,7 @@
     "Prettier 3"
   ],
   "sourceWebsite": "bernds-blockhaus.de (19 Screenshots vom 27.11.2026, Inhalte laut Benutzer aktuell)",
-  "status": "in Arbeit – Inhalte der alten Website übernehmen",
+  "status": "Inhalte der alten Website – PR zur Freigabe",
   "maturity": {
     "codeComplete": true,
     "qaPassed": true,
@@ -33,7 +33,7 @@
     "productionReady": false,
     "deploymentApproved": false
   },
-  "activeAgents": ["frontend-architect"],
+  "activeAgents": [],
   "openTasks": [
     "QA-044 (Issue #5): visuelle Responsive-Prüfung und Screenshot-Regression",
     "QA-004: sitemap.xml und robots.txt ergänzen (Folge-PR)",
@@ -44,7 +44,7 @@
   "qaStatus": {
     "lastGate": "PASS",
     "lastGateSha": "f9a792582a4767c22f80e096ea481004dd8909dc",
-    "lastQaReport": ".architect/qa/qa-report-2026-11-27.md",
+    "lastQaReport": ".architect/qa/qa-report-2026-11-27-inhalte.md",
     "qaVerdict": "CONDITIONAL PASS",
     "openFindings": [
       "QA-002 (niedrig): feste 400-ms-Wartezeit für Negativ-Assertions in same-route-navigation.spec.ts",
@@ -84,6 +84,7 @@
     "2026-11-27: QA-043 – 6 Unit- + 6 E2E-Tests für Query-/Hash-Navigation auf gleicher Route (8392d60)",
     "2026-11-27: 320px-Overflow auf / behoben (.pillar-card min-width:0, h3 Umbruch) (4735a55)",
     "2026-11-27: PR #8 von Benutzer gemergt (00d78eb), GitHub Pages deployt, Issue #4 geschlossen",
-    "2026-11-27: Alte Website inventarisiert (content-inventory.md, 145 Fotos extrahiert)"
+    "2026-11-27: Alte Website inventarisiert (content-inventory.md, 145 Fotos extrahiert)",
+    "2026-11-27: Inhalte und 61 Fotos der alten Website eingebaut (feat/inhalte-alte-website)"
   ]
 }

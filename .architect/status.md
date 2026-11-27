@@ -24,7 +24,17 @@ _Zuletzt aktualisiert: 2026-11-27 durch Orchestrator_
 | 2026-11-27 | frontend-architect | 320px-Overflow beheben (4735a55) | PASS – Gate grün | Ursache: h3 „Ferienwohnungen“ (min-content 330px) im 1fr-Grid |
 | 2026-11-27 | qa-engineer | unabhängige QA, HEAD 4735a55 | CONDITIONAL PASS – nur niedrige Befunde | `.architect/qa/qa-report-2026-11-27.md` |
 
+| 2026-11-27 | website-analyst | Inventar der alten Website (19 Screenshots, 145 Fotos) | CONDITIONAL PASS | `.architect/analysis/` |
+| 2026-11-27 | frontend-architect | Inhalte + 62 Fotos eingebaut (6fd15b5..3d06f63) | PASS – Gate grün nach 1 Korrektur (320px-h2, Lightbox-Test) | PR-Text |
+| 2026-11-27 | qa-engineer | unabhängige QA Inhalte, HEAD 3d06f63 | CONDITIONAL PASS – keine Fakten-Abweichung | `.architect/qa/qa-report-2026-11-27-inhalte.md` |
+| 2026-11-27 | frontend-architect | QA-104/105/106 (daf13cd..bb2f866) | PASS – Gate grün | — |
+
+## Aktueller Auftrag (2)
+- Inhalte der alten Website übernehmen, Branch `feat/inhalte-alte-website`. Kette: analyst → frontend-architect → qa-engineer → frontend-architect (Nachbesserung).
+
 ## Offene Aufgaben / Blocker
+- **Release-Blocker vor Merge (Merge = Live-Gang):** Datenschutzerklärung, Impressum-Prüfung (USt-IdNr.-Format), sichtbare Platzhalter – siehe PLACEHOLDERS.md
+- QA-103: canonical/OG/sitemap/robots
 - QA-043 (Issue #4) – erledigt, PR zur Freigabe
 - QA-004: sitemap.xml/robots.txt fehlen (vorbestehend, Folge-PR)
 - QA-044 (Issue #5)
