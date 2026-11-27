@@ -25,30 +25,10 @@ export function Lightbox({ item, onClose, onPrevious, onNext }: Props) {
     if (!dialog) return;
 
     const token = ++lifecycle.current;
-    if (!previousFocus.current && document.activeElement instanceof HTMLElement) {
-      previousFocus.current = document.activeElement;
-    }
+    const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    previousFocus.current = trigger;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Tab') {
-        const focusable = Array.from(
-          dialog.querySelectorAll<HTMLElement>(
-            'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-          ),
-        ).filter((element) => element.getClientRects().length > 0);
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault();
-          last?.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first?.focus();
-        }
-        return;
-      }
-
       if (event.altKey || event.ctrlKey || event.metaKey) return;
       if (event.key === 'ArrowLeft') {
         event.preventDefault();
@@ -74,13 +54,16 @@ export function Lightbox({ item, onClose, onPrevious, onNext }: Props) {
       if (lifecycle.current === token) lifecycle.current += 1;
       if (dialog.open) dialog.close();
 
-      // Strict Mode immediately re-runs this effect. Restore only if this
-      // cleanup remains the latest lifecycle by the time the microtask runs.
+      // React may remove the dialog and its trigger in the same commit.
+      // Restore focus only while the original trigger is still connected and
+      // the gallery remains mounted. Never focus stale or detached elements.
       const cleanupToken = lifecycle.current;
+      const focusTarget = previousFocus.current;
       queueMicrotask(() => {
-        if (lifecycle.current === cleanupToken) {
-          previousFocus.current?.focus();
-          previousFocus.current = null;
+        if (lifecycle.current !== cleanupToken) return;
+        previousFocus.current = null;
+        if (focusTarget?.isConnected && document.contains(focusTarget)) {
+          focusTarget.focus();
         }
       });
     };
