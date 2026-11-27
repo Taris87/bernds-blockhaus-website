@@ -13,42 +13,58 @@ export function Header() {
   const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const dialog = dialogRef.current;
-    const toggleButton = toggleRef.current;
+    if (!open) return;
 
-    if (!open || !dialog) return;
+    let cancelled = false;
+    let focusListener: ((event: FocusEvent) => void) | undefined;
+    let dialogForCleanup: HTMLDialogElement | null = null;
 
-    const activeDialog: HTMLDialogElement = dialog;
+    // Strict Mode's development replay cancels this first setup before focus moves.
+    queueMicrotask(() => {
+      if (cancelled) return;
+      const dialog = dialogRef.current;
+      if (!dialog) return;
 
-    if (!activeDialog.open) activeDialog.showModal();
+      dialogForCleanup = dialog;
+      if (!dialog.open) dialog.showModal();
 
-    const closeButton =
-      activeDialog.querySelector<HTMLButtonElement>('.mobile-menu-close');
-    closeButton?.focus();
+      const closeButton =
+        dialog.querySelector<HTMLButtonElement>('.mobile-menu-close');
+      closeButton?.focus();
 
-    // The native modal dialog handles keyboard Tab navigation.
-    // Keep this guard for unusual script-driven focus changes only.
-    function keepFocusInside(event: FocusEvent) {
-      if (
-        event.target instanceof Node &&
-        !activeDialog.contains(event.target)
-      ) {
-        closeButton?.focus();
+      function keepFocusInside(event: FocusEvent) {
+        if (event.target instanceof Node && !dialog.contains(event.target)) {
+          closeButton?.focus();
+        }
       }
-    }
 
-    document.addEventListener('focusin', keepFocusInside);
+      focusListener = keepFocusInside;
+      document.addEventListener('focusin', keepFocusInside);
+    });
 
     return () => {
-      document.removeEventListener('focusin', keepFocusInside);
-      if (activeDialog.open) activeDialog.close();
-      toggleButton?.focus();
+      cancelled = true;
+      if (focusListener) {
+        document.removeEventListener('focusin', focusListener);
+      }
+      if (dialogForCleanup?.open) dialogForCleanup.close();
+      // Cleanup is not necessarily a user close: Strict Mode replays it on mount.
     };
   }, [open]);
+
+  function restoreToggleFocus() {
+    toggleRef.current?.focus();
+  }
 
   function handleCancel(event: SyntheticEvent<HTMLDialogElement>) {
     event.preventDefault();
     setOpen(false);
+    restoreToggleFocus();
+  }
+
+  function handleClose() {
+    setOpen(false);
+    restoreToggleFocus();
   }
 
   return (
@@ -107,17 +123,17 @@ export function Header() {
           className="mobile-menu-close"
           type="button"
           aria-label="Menü schließen"
-          onClick={() => setOpen(false)}
+          onClick={handleClose}
         >
           ×
         </button>
         <nav aria-label="Menü">
           {site.navigation.map((item) => (
-            <NavLink key={item.to} to={item.to} onClick={() => setOpen(false)}>
+            <NavLink key={item.to} to={item.to} onClick={handleClose}>
               {item.label}
             </NavLink>
           ))}
-          <Link to="/kontakt" onClick={() => setOpen(false)}>
+          <Link to="/kontakt" onClick={handleClose}>
             Anfragen ↗
           </Link>
         </nav>
