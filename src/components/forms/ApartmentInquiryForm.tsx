@@ -1,19 +1,49 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
+
+const fallbackMessage =
+  'Das Anfrageformular ist noch nicht mit einem Versanddienst verbunden. Bitte kontaktieren Sie uns telefonisch oder per E-Mail.';
+const invalidEndpointMessage =
+  'Der Anfrageversand ist derzeit nicht korrekt konfiguriert. Bitte kontaktieren Sie uns telefonisch oder per E-Mail.';
+const errorMessage =
+  'Ihre Anfrage konnte nicht versendet werden. Bitte versuchen Sie es später erneut oder kontaktieren Sie uns direkt.';
+
+function getSecureEndpoint(value: string | undefined): string | null {
+  if (!value?.trim()) return null;
+
+  try {
+    const endpoint = new URL(value.trim());
+    if (endpoint.protocol !== 'https:' || !endpoint.hostname) return null;
+    return endpoint.toString();
+  } catch {
+    return null;
+  }
+}
 
 export function ApartmentInquiryForm() {
   const [status, setStatus] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = event.currentTarget;
-    const endpoint = import.meta.env.VITE_INQUIRY_ENDPOINT;
 
-    if (!endpoint) {
-      setStatus('Das Anfrageformular ist noch nicht mit einem Versanddienst verbunden. Bitte kontaktieren Sie uns telefonisch oder per E-Mail.');
+    if (submittingRef.current) return;
+
+    const form = event.currentTarget;
+    const configuredEndpoint = import.meta.env.VITE_INQUIRY_ENDPOINT;
+
+    if (!configuredEndpoint?.trim()) {
+      setStatus(fallbackMessage);
       return;
     }
 
+    const endpoint = getSecureEndpoint(configuredEndpoint);
+    if (!endpoint) {
+      setStatus(invalidEndpointMessage);
+      return;
+    }
+
+    submittingRef.current = true;
     setSubmitting(true);
     setStatus('');
 
@@ -31,8 +61,9 @@ export function ApartmentInquiryForm() {
       form.reset();
       setStatus('Vielen Dank! Ihre Anfrage wurde erfolgreich versendet.');
     } catch {
-      setStatus('Ihre Anfrage konnte nicht versendet werden. Bitte versuchen Sie es später erneut oder kontaktieren Sie uns direkt.');
+      setStatus(errorMessage);
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   }
