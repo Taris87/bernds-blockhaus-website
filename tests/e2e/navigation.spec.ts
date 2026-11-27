@@ -2,6 +2,12 @@ import { expect, test } from '@playwright/test';
 
 const pagesBase = '/bernds-blockhaus-website';
 
+async function completeRequiredInquiryFields(page: import('@playwright/test').Page) {
+  await page.getByLabel('Name').fill('Erika Muster');
+  await page.getByLabel('E-Mail').fill('erika@example.com');
+  await page.getByLabel('Nachricht').fill('Ich interessiere mich für eine Ferienwohnung.');
+}
+
 test('home navigation reaches the gastronomy page', async ({ page }) => {
   await page.goto(`${pagesBase}/`);
   await page.getByRole('link', { name: /Gaststätte/ }).first().click();
@@ -22,6 +28,7 @@ test('inquiry form reports an unconfigured endpoint without sending', async ({ p
   });
 
   await page.goto(`${pagesBase}/ferienwohnungen`);
+  await completeRequiredInquiryFields(page);
   await page.getByRole('button', { name: /Anfrage senden/i }).click();
 
   await expect(page.getByRole('status')).toContainText(
