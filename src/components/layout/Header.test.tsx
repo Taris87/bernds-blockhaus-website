@@ -18,9 +18,12 @@ afterEach(() => {
 
 function renderHeader() {
   return render(
-    <MemoryRouter>
-      <Header />
-    </MemoryRouter>,
+    <>
+      <button type="button" data-testid="outside-control">Outside</button>
+      <MemoryRouter>
+        <Header />
+      </MemoryRouter>
+    </>,
   );
 }
 
@@ -57,15 +60,28 @@ describe('Header mobile navigation', () => {
     expect(toggle).toHaveFocus();
   });
 
-  it('closes the dialog when the close button is selected', () => {
+  it('closes the dialog and restores focus when the close button is selected', () => {
     renderHeader();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
+    const toggle = screen.getByRole('button', { name: 'Menü öffnen' });
+    fireEvent.click(toggle);
     fireEvent.click(screen.getByRole('button', { name: 'Menü schließen' }));
 
     expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute(
       'open',
     );
+    expect(toggle).toHaveFocus();
+  });
+
+  it('returns focus to the dialog when script-driven focus escapes', () => {
+    renderHeader();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
+    const closeButton = screen.getByRole('button', { name: 'Menü schließen' });
+
+    screen.getByTestId('outside-control').focus();
+
+    expect(closeButton).toHaveFocus();
   });
 
   it('closes the dialog when a navigation link is selected', () => {
