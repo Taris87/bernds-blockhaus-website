@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, type SyntheticEvent } from 'react';
 import type { GalleryItem } from '../../data/gallery';
-import { PlaceholderImage } from '../ui/PlaceholderImage';
+import { Photo } from '../ui/Photo';
 
 interface Props {
   item: GalleryItem;
@@ -113,7 +113,7 @@ export function Lightbox({ item, onClose, onPrevious, onNext }: Props) {
             Weiter
           </button>
         </div>
-        <PlaceholderImage label={item.description} className="lightbox-image" />
+        <Photo photo={item.photo} className="lightbox-image" eager />
         <p className="lightbox-caption">{item.title}</p>
       </section>
     </dialog>

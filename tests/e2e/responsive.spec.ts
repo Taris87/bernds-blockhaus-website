@@ -8,6 +8,7 @@ const routes = [
   { path: '/ferienwohnungen', heading: /Zeit zum/i },
   { path: '/galerie', heading: /Ein Ort voller/i },
   { path: '/eichwieserhof', heading: /Naturverbunden/i },
+  { path: '/kontakt', heading: /Kontakt/i },
   { path: '/impressum', heading: /Impressum/i },
   { path: '/datenschutz', heading: /Datenschutz/i },
 ];
@@ -43,10 +44,18 @@ test('gastronomy menu tabs remain operable and expose the selected category', as
   await page.goto(`${base}/gaststaette`);
 
   const tabs = page.getByRole('tab');
-  await expect(tabs).toHaveCount(2);
+  await expect(tabs).toHaveCount(9);
   await tabs.nth(1).click();
   await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
-  await expect(page.locator('.menu-list h3')).toHaveText('Getränke');
+  await expect(page.locator('.menu-list h3')).toHaveText('Platten');
+  await tabs.nth(8).click();
+  await expect(page.getByRole('tabpanel', { name: 'Tageskarte' })).toContainText('Rehgulasch');
+
+  const dimensions = await page.evaluate(() => ({
+    viewport: document.documentElement.clientWidth,
+    content: document.documentElement.scrollWidth,
+  }));
+  expect(dimensions.content).toBeLessThanOrEqual(dimensions.viewport);
 });
 
 test('apartment inquiry fields remain visible, usable and within the viewport', async ({ page }) => {

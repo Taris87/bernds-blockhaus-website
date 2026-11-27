@@ -76,7 +76,7 @@ export function Header() {
       <header className="site-header">
         <div className="header-strip">
           <span>Gaststätte · Ferienwohnungen · Eichwieserhof</span>
-          <span>[PLATZHALTER: Region]</span>
+          <span>{site.region}</span>
         </div>
         <div className="header-inner">
           <Link

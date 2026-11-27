@@ -12,3 +12,4 @@ test-results/
 # WEBSITE ARCHITECT: lokale Gate-Läufe
 .architect/qa/runs/
 .architect/qa/last-gate.json
+.architect/sources/

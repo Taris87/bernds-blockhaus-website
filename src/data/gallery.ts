@@ -1,10 +1,67 @@
-export type GalleryCategory = 'gaststaette' | 'ferienwohnungen' | 'eichwieserhof';
-export interface GalleryItem { id: string; title: string; category: GalleryCategory; description: string; }
-export const galleryItems: GalleryItem[] = [
-  { id: 'blockhaus-aussen', title: 'Das Blockhaus', category: 'gaststaette', description: '[PLATZHALTER: Originalfoto des Blockhauses]' },
-  { id: 'gastbereich', title: 'Gastbereich', category: 'gaststaette', description: '[PLATZHALTER: Foto des Gastraums]' },
-  { id: 'ferienwohnung', title: 'Ferienwohnungen', category: 'ferienwohnungen', description: '[PLATZHALTER: Foto einer Ferienwohnung]' },
-  { id: 'hof', title: 'Eichwieserhof', category: 'eichwieserhof', description: '[PLATZHALTER: Foto des Hofes]' },
-  { id: 'natur', title: 'Natur & Umgebung', category: 'eichwieserhof', description: '[PLATZHALTER: Landschaftsfoto]' },
-  { id: 'details', title: 'Details', category: 'gaststaette', description: '[PLATZHALTER: Detailaufnahme]' },
+import type { Photo } from '../types/content';
+import { photos } from './photos';
+
+export type GalleryCategory =
+  'gaststaette' | 'ferienwohnungen' | 'eichwieserhof';
+
+export interface GalleryItem {
+  id: string;
+  title: string;
+  category: GalleryCategory;
+  photo: Photo;
+}
+
+const entries: [keyof typeof photos, string, GalleryCategory][] = [
+  ['blockhausLavendel', 'Das Blockhaus', 'gaststaette'],
+  ['blockhausRosen', 'Rosen und Lavendel', 'gaststaette'],
+  ['blockhausTeichSommer', 'Am Teich', 'gaststaette'],
+  ['blockhausAbendlicht', 'Abendlicht', 'gaststaette'],
+  ['blockhausWinterNah', 'Winter am Blockhaus', 'gaststaette'],
+  ['blockhausWinterFern', 'Verschneite Landschaft', 'gaststaette'],
+  ['blockhausTerrasse', 'Die Terrasse', 'gaststaette'],
+  ['blockhausTeichSchilf', 'Schilf am Teich', 'gaststaette'],
+  ['blockhausWegweiser', 'Der Wegweiser', 'gaststaette'],
+  ['blockhausKirschbaum', 'Fernblick', 'gaststaette'],
+  ['blockhausGetreide', 'Zwischen den Feldern', 'gaststaette'],
+  ['blockhausWeitblick', 'Weitblick', 'gaststaette'],
+  ['blockhausBaeume', 'Wiesen und Bäume', 'gaststaette'],
+  ['festtafel', 'Festtafel', 'gaststaette'],
+  ['gerichtHausmacher', 'Hausmacher Platte', 'gaststaette'],
+  ['gerichtSchnitzel', 'Schnitzel mit Pommes', 'gaststaette'],
+  ['gerichtJaegerschnitzel', 'Jägerschnitzel', 'gaststaette'],
+  ['gerichtRahmschnitzel', 'Rahmschnitzel', 'gaststaette'],
+  ['gerichtSteak', 'Steak mit Pommes', 'gaststaette'],
+  ['gerichtBratwurstKraut', 'Bratwurst mit Kraut', 'gaststaette'],
+  ['gerichtBratwurstPommes', 'Bratwurst mit Pommes', 'gaststaette'],
+  ['gerichtLeberknoedel', 'Leberknödel mit Kraut', 'gaststaette'],
+  [
+    'gerichtWildschweinbratwurst',
+    'Bratwürste mit Bratkartoffeln',
+    'gaststaette',
+  ],
+  ['gerichtRinderbraten', 'Rinderbraten mit Spätzle', 'gaststaette'],
+  ['gerichtRindfleisch', 'Rindfleisch mit Meerrettich', 'gaststaette'],
+  ['gerichtBraten', 'Braten mit Knödel & Rotkraut', 'gaststaette'],
+  ['gerichtWurstsalat', 'Wurstsalat', 'gaststaette'],
+  ['gerichtSalatPute', 'Salat mit Putenstreifen', 'gaststaette'],
+  ['gerichtSalatKroketten', 'Salat mit Kroketten', 'gaststaette'],
+  ['fewoGrossWohnzimmer', 'Große Ferienwohnung', 'ferienwohnungen'],
+  ['fewoGrossSchlafzimmer', 'Schlafzimmer (Süd)', 'ferienwohnungen'],
+  ['fewoKleinWohnraum', 'Kleine Ferienwohnung', 'ferienwohnungen'],
+  ['islaenderZaun', 'Islandpferde am Blockhaus', 'eichwieserhof'],
+  ['islaenderWiese', 'Isländer auf der Löwenzahnwiese', 'eichwieserhof'],
+  ['islaenderAuge', 'Nahaufnahme', 'eichwieserhof'],
+  ['angusHerde', 'Angus-Herde', 'eichwieserhof'],
+  ['angusBlockhaus', 'Angus-Rinder vor dem Blockhaus', 'eichwieserhof'],
+  ['eichwieserhof', 'Eichwieserhof', 'eichwieserhof'],
+  ['mohnblumen', 'Mohnblumen', 'eichwieserhof'],
 ];
+
+export const galleryItems: GalleryItem[] = entries.map(
+  ([key, title, category]) => ({
+    id: key,
+    title,
+    category,
+    photo: photos[key],
+  }),
+);

@@ -21,10 +21,10 @@ test.describe('native gallery lightbox', () => {
       expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width + 1);
       expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(741);
       await page.getByRole('button', { name: 'Weiter' }).click();
-      await expect(dialog).toHaveAttribute('aria-label', 'Gastbereich');
+      await expect(dialog).toHaveAttribute('aria-label', 'Rosen und Lavendel');
       await expect(page.getByRole('button', { name: 'Weiter' })).toBeFocused();
       await page.keyboard.press('ArrowRight');
-      await expect(dialog).toHaveAttribute('aria-label', 'Ferienwohnungen');
+      await expect(dialog).toHaveAttribute('aria-label', 'Am Teich');
       await expect(page.getByRole('button', { name: 'Weiter' })).toBeFocused();
       await page.keyboard.press('Escape');
       await expect(dialog).not.toBeVisible();

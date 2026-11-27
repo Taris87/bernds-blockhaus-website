@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { galleryItems } from '../../data/gallery';
 import { Lightbox } from './Lightbox';
-import { PlaceholderImage } from '../ui/PlaceholderImage';
+import { Photo } from '../ui/Photo';
 
 export function GalleryGrid() {
   const [active, setActive] = useState<number | null>(null);
@@ -17,7 +17,7 @@ export function GalleryGrid() {
             onClick={() => setActive(index)}
             aria-label={`${item.title} groß anzeigen`}
           >
-            <PlaceholderImage label={item.description} />
+            <Photo photo={item.photo} className="photo-cover" />
             <span className="gallery-tile-caption">{item.title}</span>
           </button>
         ))}
