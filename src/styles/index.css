@@ -118,10 +118,13 @@ h2 em, h1 em, blockquote em { color: var(--color-terracotta-text); font-weight: 
 .gallery-tile:nth-child(3n + 2) { transform: translateY(32px); }
 .gallery-tile .image-placeholder { min-height: 260px; }
 .gallery-tile-caption { position: absolute; bottom: 0; left: 0; padding: 12px 16px; color: white; background: var(--color-forest); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
-.lightbox-backdrop { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 20px; background: rgb(20 28 23 / 92%); }
-.lightbox { position: relative; width: min(900px, 100%); padding: 30px; background: var(--color-ivory); }
-.lightbox-close { position: absolute; top: 8px; right: 8px; padding: 10px; border: 0; background: transparent; cursor: pointer; font-size: 24px; }
-.lightbox-image { min-height: 420px; }
+.lightbox-dialog:not([open]) { display: none; }
+.lightbox-dialog { position: fixed; inset: 0; width: 100%; max-width: none; height: 100%; max-height: none; margin: auto; padding: 20px; border: 0; display: grid; place-items: center; background: transparent; }
+.lightbox-dialog::backdrop { background: rgb(20 28 23 / 92%); }
+.lightbox-panel { position: relative; width: min(900px, 100%); max-height: calc(100dvh - 40px); overflow: auto; padding: 30px; background: var(--color-ivory); }
+.lightbox-close { position: absolute; top: 8px; right: 8px; min-width: 44px; min-height: 44px; padding: 10px; border: 0; background: transparent; cursor: pointer; font-size: 24px; }
+.lightbox-controls { display: flex; flex-wrap: wrap; gap: 12px; padding-right: 48px; }
+.lightbox-image { height: min(42dvh, 420px); min-height: 180px; }
 .lightbox-caption { margin: 16px 0 0; font-size: 12px; text-align: center; }
 .site-footer { padding: 70px 5vw 25px; color: white; background: var(--color-wood); }
 .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 6vw; max-width: 1240px; margin: auto; }
@@ -138,7 +141,7 @@ h2 em, h1 em, blockquote em { color: var(--color-terracotta-text); font-weight: 
   .menu-toggle { display: block; }
   .mobile-menu[open] { position: fixed; z-index: 100; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 22px; padding: 12vw; color: white; background: var(--color-forest); }
   .mobile-menu a { font-family: var(--font-display); font-size: clamp(34px, 8vw, 56px); }
-  .mobile-menu button { position: absolute; top: 24px; right: 5vw; border: 0; color: white; background: transparent; font-size: 32px; }
+  .mobile-menu button { position: absolute; top: 24px; right: 5vw; min-width: 44px; min-height: 44px; border: 0; color: white; background: transparent; font-size: 32px; }
   .intro-section, .two-column, .form-layout { grid-template-columns: 1fr; }
   .intro-copy { margin-top: 0; }
   .pillar-grid { grid-template-columns: 1fr 1fr; }
@@ -151,15 +154,20 @@ h2 em, h1 em, blockquote em { color: var(--color-terracotta-text); font-weight: 
   .brand-mark { width: 34px; height: 34px; }
   .header-strip { padding-inline: 5%; font-size: 8px; }
   .header-strip span:last-child { display: none; }
+  .page-intro h1 { font-size: clamp(42px, 12vw, 58px); overflow-wrap: anywhere; }
   .hero { min-height: 660px; }
   .hero-content { width: 90%; padding: 150px 0 100px 6vw; }
   .intro-section, .content-section { padding-top: 75px; padding-bottom: 75px; }
   .pillars-section, .menu-section, .form-section { padding-block: 75px; }
   .pillar-grid, .apartment-grid, .gallery-grid, .form-grid { grid-template-columns: 1fr; }
+  .menu-item { flex-wrap: wrap; }
+  .menu-item > div { min-width: 0; overflow-wrap: anywhere; }
+  .menu-item > span { white-space: normal; }
   .gallery-tile:nth-child(3n + 2) { transform: none; }
   .inquiry-form { padding: 20px; }
-  .lightbox { padding: 18px; }
-  .lightbox-image { min-height: 260px; }
+  .lightbox-dialog { padding: 12px; }
+  .lightbox-panel { max-height: calc(100dvh - 24px); padding: 20px; }
+  .lightbox-image { height: min(38dvh, 320px); min-height: 160px; }
   .footer-grid { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
