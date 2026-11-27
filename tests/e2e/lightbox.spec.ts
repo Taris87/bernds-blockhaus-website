@@ -39,7 +39,6 @@ test.describe('native gallery lightbox', () => {
     await trigger.click();
     const dialog = page.getByRole('dialog');
     const close = page.getByRole('button', { name: 'Galerie schließen' });
-    const next = page.getByRole('button', { name: 'Weiter' });
     await expect(close).toBeFocused();
 
     for (const key of ['Tab', 'Tab', 'Tab', 'Shift+Tab', 'Shift+Tab', 'Shift+Tab']) {
