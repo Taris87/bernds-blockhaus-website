@@ -6,8 +6,10 @@
   --color-ivory: #F3EFE6;
   --color-sandstone: #E5DDCE;
   --color-terracotta: #A66D45;
+  --color-terracotta-text: #80502F;
   --color-wood: #342D27;
   --color-muted-stone: #817F73;
+  --color-muted-stone-text: #656357;
   --font-display: "Cormorant Garamond", Georgia, serif;
   --font-body: "DM Sans", Arial, sans-serif;
 }
@@ -19,7 +21,7 @@ body { margin: 0; min-width: 320px; }
 a { color: inherit; text-decoration: none; }
 button, input, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
-button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid var(--color-terracotta); outline-offset: 3px; }
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid var(--color-terracotta-text); outline-offset: 3px; }
 ::selection { color: white; background: var(--color-forest); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 .skip-link { position: fixed; z-index: 1000; top: 8px; left: 8px; padding: 12px 16px; background: white; transform: translateY(-150%); }
@@ -31,7 +33,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .brand-mark { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid var(--color-terracotta); color: var(--color-forest); font-size: 16px; letter-spacing: -2px; }
 .primary-nav { display: flex; align-items: center; gap: clamp(12px, 2vw, 30px); font-size: 12px; font-weight: 600; letter-spacing: .04em; }
 .primary-nav a { padding: 12px 0; }
-.primary-nav a.active { color: var(--color-terracotta); }
+.primary-nav a.active { color: var(--color-terracotta-text); }
 .primary-nav .nav-cta { background: var(--color-forest); color: white; padding: 13px 20px; }
 .menu-toggle { display: none; border: 0; background: transparent; padding: 12px; }
 .header-strip { min-height: 30px; display: flex; justify-content: space-between; align-items: center; padding: 0 5vw; background: var(--color-forest); color: #f3efe6; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
@@ -40,7 +42,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .hero-image .image-placeholder { height: 100%; border: 0; background: linear-gradient(120deg, #566b5b, #293c32 65%, #1d2b24); }
 .hero-shade { background: linear-gradient(90deg, rgb(20 32 26 / 78%), rgb(20 32 26 / 38%) 58%, rgb(20 32 26 / 8%)); }
 .hero-content { position: relative; z-index: 1; width: min(720px, 85%); padding: clamp(100px, 15vw, 210px) 0 130px 10vw; }
-.eyebrow { margin: 0 0 18px; color: var(--color-terracotta); font-size: 10px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+.eyebrow { margin: 0 0 18px; color: var(--color-terracotta-text); font-size: 10px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
 .hero .eyebrow { color: #e0b58e; }
 h1, h2, h3, h4, p { margin-top: 0; }
 h1, h2, .quote-section blockquote { font-family: var(--font-display); font-weight: 500; letter-spacing: -.035em; }
@@ -56,7 +58,7 @@ h1, h2, .quote-section blockquote { font-family: var(--font-display); font-weigh
 .button:disabled { opacity: .55; cursor: not-allowed; }
 .intro-section { display: grid; grid-template-columns: 1fr 1fr; gap: 8vw; padding-top: 130px; padding-bottom: 130px; }
 h2 { font-size: clamp(44px, 6vw, 76px); line-height: .98; }
-h2 em, h1 em, blockquote em { color: var(--color-terracotta); font-weight: 400; }
+h2 em, h1 em, blockquote em { color: var(--color-terracotta-text); font-weight: 400; }
 .intro-copy { max-width: 430px; margin: 75px 0 0; color: #625f56; font-size: 17px; line-height: 1.9; }
 .section-wrap { width: min(1240px, 90%); margin-inline: auto; }
 .pillars-section { padding: 110px 0 130px; background: var(--color-sandstone); }
@@ -159,7 +161,6 @@ h2 em, h1 em, blockquote em { color: var(--color-terracotta); font-weight: 400; 
   .lightbox { padding: 18px; }
   .lightbox-image { min-height: 260px; }
   .footer-grid { grid-template-columns: 1fr; }
-  .footer-bottom { flex-direction: column; gap: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
