@@ -94,8 +94,8 @@ describe('Lightbox Strict Mode lifecycle', () => {
   it('restores focus to the connected trigger after an ordinary close', async () => {
     renderLightbox();
     await act(async () => { await Promise.resolve(); });
-    const trigger = container.querySelector('button');
-    expect(trigger).not.toBeNull();
+    const trigger = Array.from(container.querySelectorAll('button')).find((button) => button.textContent === 'Gallery trigger');
+    expect(trigger).toBeDefined();
 
     const close = container.querySelector<HTMLButtonElement>('.lightbox-close');
     await act(async () => close?.click());
