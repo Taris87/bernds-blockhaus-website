@@ -10,7 +10,7 @@ const routes = [
   '/kontakt',
 ];
 
-for (const width of [375, 600, 768, 1440]) {
+for (const width of [320, 375, 600, 768, 1100, 1440]) {
   for (const route of routes) {
     test(`all photos on ${route} at ${width}px load with alt text and are not upscaled beyond 1.5x`, async ({
       page,
@@ -25,7 +25,7 @@ for (const width of [375, 600, 768, 1440]) {
 
       for (let index = 0; index < count; index += 1) {
         const image = images.nth(index);
-        // The framed hero photo is hidden (display: none) below 1024px.
+        // Hidden images (e.g. the menu photo below 1100px) are skipped.
         if (!(await image.isVisible())) continue;
         await image.scrollIntoViewIfNeeded();
         await expect
@@ -91,33 +91,32 @@ test('contact page offers phone and e-mail links for every contact person', asyn
   }
 });
 
-test('hidden hero photo is not downloaded on small screens but shown on desktop', async ({
+test('home hero shows the photo collage within the first mobile viewport', async ({
   page,
 }) => {
-  const heroRequests: string[] = [];
-  page.on('request', (request) => {
-    if (request.url().includes('blockhaus-rosen-lavendel')) {
-      heroRequests.push(request.url());
-    }
-  });
-
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto(`${base}/`);
-  await page.waitForLoadState('networkidle');
-  await expect(page.locator('.hero-photo')).toBeHidden();
-  expect(heroRequests).toEqual([]);
-
-  await page.setViewportSize({ width: 1440, height: 900 });
-  const heroImage = page.locator('.hero-photo img');
-  await expect(heroImage).toBeVisible();
+  const heroPhoto = page.locator('.hero-collage .slot-a img');
+  await expect(heroPhoto).toBeVisible();
+  await expect(heroPhoto).toHaveAttribute('loading', 'eager');
+  const box = await heroPhoto.boundingBox();
+  expect(box).not.toBeNull();
+  expect(box!.y, 'collage photo starts inside the first viewport').toBeLessThan(812);
   await expect
     .poll(() =>
-      heroImage.evaluate(
+      heroPhoto.evaluate(
         (element: HTMLImageElement) =>
           element.complete && element.naturalWidth > 0,
       ),
     )
     .toBe(true);
+});
+
+test('home page shows the hero slogan only once', async ({ page }) => {
+  await page.goto(`${base}/`);
+  await expect(page.locator('main h1')).toContainText('Ankommen.');
+  await expect(page.getByText(/Ein Platz zum Bleiben/)).toHaveCount(0);
+  await expect(page.locator('main').getByText('Wohlfühlen.', { exact: false })).toHaveCount(1);
 });
 
 for (const route of [...routes, '/impressum', '/datenschutz']) {

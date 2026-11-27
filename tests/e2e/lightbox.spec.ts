@@ -21,10 +21,10 @@ test.describe('native gallery lightbox', () => {
       expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width + 1);
       expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(741);
       await page.getByRole('button', { name: 'Weiter' }).click();
-      await expect(dialog).toHaveAttribute('aria-label', 'Rosen und Lavendel');
+      await expect(dialog).toHaveAttribute('aria-label', 'Hausmacher Platte');
       await expect(page.getByRole('button', { name: 'Weiter' })).toBeFocused();
       await page.keyboard.press('ArrowRight');
-      await expect(dialog).toHaveAttribute('aria-label', 'Am Teich');
+      await expect(dialog).toHaveAttribute('aria-label', 'Abendlicht');
       await expect(page.getByRole('button', { name: 'Weiter' })).toBeFocused();
       await page.keyboard.press('Escape');
       await expect(dialog).not.toBeVisible();
@@ -183,7 +183,10 @@ test.describe('native gallery lightbox', () => {
     await expect(page).toHaveURL(new RegExp(`${base}/?$`));
     await expect(page.locator('main#main')).toBeFocused();
 
-    await page.getByRole('link', { name: 'Galerie' }).click();
+    await page
+      .getByRole('navigation', { name: 'Hauptnavigation' })
+      .getByRole('link', { name: 'Galerie' })
+      .click();
     await expect(page).toHaveURL(new RegExp(`${base}/galerie/?$`));
     const newTrigger = page.getByRole('button', { name: /groß anzeigen/i }).first();
     expect(await newTrigger.elementHandle()).not.toBe(originalElement);
