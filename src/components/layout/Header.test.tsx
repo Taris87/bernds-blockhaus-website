@@ -43,7 +43,7 @@ describe('Header mobile navigation', () => {
 
     fireEvent.cancel(screen.getByRole('dialog', { name: 'Mobile Navigation' }));
 
-    expect(screen.queryByRole('dialog')).not.toHaveAttribute('open');
+    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open');
     expect(toggle).toHaveFocus();
   });
 
