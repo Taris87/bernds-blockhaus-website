@@ -27,16 +27,24 @@ Die beiden ursprünglichen Farben erfüllen 4.5:1 für normalen Text nicht. Die 
 
 Der Pages-Workflow bleibt auf `push` zu `main` beschränkt. Bei manueller Ausführung auf einem anderen Ref wird der Build-Job übersprungen. Für manuelle Ausführung auf `main` verlangt der Deployment-Job zusätzlich den Bestätigungstext `deploy-main`.
 
-## Mobile Dialog
+## Mobile Dialog und Testumgebung
 
 Die manuelle Tab-/Shift+Tab-Schleife wurde entfernt. Sequenzielle Tastaturnavigation wird dem nativen modalen `dialog` überlassen. Initialer Fokus, Escape-Abbruch, Fokuswiederherstellung, Strict-Mode-Schutz und Fokuswache für scriptgesteuerte Fokuswechsel bleiben erhalten.
 
-## Formularkonfiguration
+JSDOM implementiert keine native Modal-Dialog-Semantik. Die Unit-Tests mocken `showModal()`/ `close()` daher ausschließlich für React-Lifecycle- und Fokuslogik; sie behaupten ausdrücklich nicht, native Tab-Reihenfolge zu beweisen. Native Tab-/Shift+Tab-Steuerung wird in Playwright mit echtem Chromium geprüft.
 
-Das Frontend erfordert weiterhin einen gültigen HTTPS-Endpunkt in `VITE_INQUIRY_ENDPOINT`. Ohne Endpoint, bei ungültiger URL, HTTP-Fehler oder Netzwerkfehler wird kein Erfolg angezeigt. Das Formular wird ausschließlich nach erfolgreicher HTTP-Antwort zurückgesetzt.
+Die Browser-Tests navigieren über den echten GitHub-Pages-Basispfad `/bernds-blockhaus-website/`. Das Anfrageformular befindet sich auf `/ferienwohnungen`, nicht auf `/kontakt`.
+
+## Formularprüfungen
+
+Die Standard-E2E-Konfiguration startet Vite mit leerem `VITE_INQUIRY_ENDPOINT` und prüft den sichtbaren Fallback sowie das Ausbleiben eines POST-Requests.
+
+Eine zweite Playwright-Konfiguration startet die Anwendung separat mit `VITE_INQUIRY_ENDPOINT=https://%`. Der Browser-Test sendet das Formular ab, prüft die sichtbare Fehlermeldung und weist nach, dass kein POST-Request erfolgt.
 
 Offen vor Produktivbetrieb: Backend-Endpunkt und Empfängerlogik, serverseitige Validierung, Spam-/Rate-Limit-Schutz, sichere Speicherung/Weiterleitung, Monitoring, Datenschutzinformation und rechtlich erforderliche Einwilligungs-/Aufbewahrungsprozesse. Es wurde kein Endpunkt und keine Empfängeradresse erfunden oder eingerichtet.
 
 ## Testumfang
 
-Die Playwright-Spezifikationen enthalten derzeit 7 deklarierte Tests (5 in `mobile-navigation.spec.ts` inklusive vier Viewport-Durchläufen und 2 in `navigation.spec.ts`). Das ist die statische deklarierte Testzahl, kein Nachweis eines erfolgreichen Laufs. Tatsächlich ausgeführte Ergebnisse müssen dem zugehörigen CI-Run entnommen werden.
+- Unit Tests: 15 deklarierte Tests (7 Header, 8 Formular).
+- Playwright: 12 deklarierte Tests insgesamt – 8 Mobile-Dialog-/Viewport-Tests, 3 Navigation-/Fallback-Tests und 1 separater Test mit ungültigem HTTPS-Endpunkt.
+- Die Anzahl deklarierter Tests ist nicht gleichbedeutend mit bestandenen Tests. Maßgeblich sind die tatsächlich abgeschlossenen CI-Läufe für den jeweiligen Commit.
