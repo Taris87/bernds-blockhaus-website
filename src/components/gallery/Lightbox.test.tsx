@@ -109,13 +109,14 @@ describe('Lightbox Strict Mode lifecycle', () => {
     const trigger = await renderGallery(true);
 
     expect(container.querySelector('dialog[open]')).not.toBeNull();
+    const focusCallsBeforeUnmount = focusSpy.mock.contexts.length;
     await act(async () => {
       root.render(<p>New route content</p>);
     });
     await act(async () => { await Promise.resolve(); });
 
     expect(trigger.isConnected).toBe(false);
-    expect(focusSpy.mock.instances.some((element) => element === trigger)).toBe(false);
+    expect(focusSpy.mock.contexts.slice(focusCallsBeforeUnmount)).not.toContain(trigger);
     expect(document.activeElement).not.toBe(trigger);
     expect(container.querySelector('dialog')).toBeNull();
     expect(removedListeners.length).toBe(2);
