@@ -20,15 +20,38 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          # Enable npm cache after package-lock.json is committed.
+          cache: ''
+
+      - name: Verify npm and lockfile
+        run: |
+          node --version
+          npm --version
+          test -f package-lock.json || {
+            echo "::error::package-lock.json is missing. Generate it with npm install and commit it before deployment."
+            exit 1
+          }
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
       - name: Build website
         run: npm run build
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
