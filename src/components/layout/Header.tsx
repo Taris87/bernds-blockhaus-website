@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type SyntheticEvent } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type SyntheticEvent,
+} from 'react';
 import { NavLink, Link } from 'react-router';
 import { site } from '../../data/site';
 
@@ -47,7 +53,7 @@ export function Header() {
   }
 
   function handleDialogKeyDown(
-    event: React.KeyboardEvent<HTMLDialogElement>,
+    event: KeyboardEvent<HTMLDialogElement>,
   ) {
     if (event.key !== 'Tab') return;
 
