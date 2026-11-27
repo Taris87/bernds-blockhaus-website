@@ -1,5 +1,6 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { getContact, phoneHref } from '../../data/contacts';
+import { apartments } from '../../data/apartments';
 
 const contact = getContact('blockhaus');
 
@@ -22,8 +23,21 @@ function getSecureEndpoint(value: string | undefined): string | null {
   }
 }
 
-export function ApartmentInquiryForm() {
+interface Props {
+  /** Preselected apartment id (set by “Anfrage für diese Wohnung”). */
+  apartment?: string;
+  onApartmentChange?: (id: string) => void;
+}
+
+export function ApartmentInquiryForm({ apartment, onApartmentChange }: Props) {
   const [status, setStatus] = useState('');
+  const [ownApartment, setOwnApartment] = useState('');
+  const selectedApartment = apartment ?? ownApartment;
+
+  function changeApartment(id: string) {
+    if (onApartmentChange) onApartmentChange(id);
+    else setOwnApartment(id);
+  }
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
 
@@ -72,11 +86,11 @@ export function ApartmentInquiryForm() {
   }
 
   return (
-    <section className="form-section">
-      <div className="section-wrap form-layout">
+    <section id="anfrage" className="form-section" tabIndex={-1}>
+      <div className="wrap form-layout">
         <div>
-          <p className="eyebrow">Ihre Auszeit</p>
-          <h2>Ferienwohnung <em>anfragen.</em></h2>
+          <p className="label">Ihre Auszeit</p>
+          <h2 className="section-title" data-reveal="text">Ferien&shy;wohnung <em>anfragen.</em></h2>
           <p>
             {contact.responsibility}: {contact.name}, Telefon{' '}
             <a href={phoneHref(contact.phone)}>{contact.phone}</a>, E-Mail{' '}
@@ -87,12 +101,23 @@ export function ApartmentInquiryForm() {
           <div className="form-grid">
             <label>Name<input name="name" autoComplete="name" required /></label>
             <label>E-Mail<input name="email" type="email" autoComplete="email" required /></label>
+            <label className="form-wide">
+              Ferienwohnung
+              <select name="apartment" value={selectedApartment} onChange={(event) => changeApartment(event.target.value)}>
+                <option value="">Bitte wählen</option>
+                {apartments.map((entry) => (
+                  <option key={entry.id} value={entry.id}>
+                    {entry.name}
+                  </option>
+                ))}
+              </select>
+            </label>
             <label className="form-wide">Gewünschter Zeitraum<input name="period" placeholder="[PLATZHALTER: Zeitraum]" /></label>
             <label className="form-wide">Nachricht<textarea name="message" rows={5} required /></label>
           </div>
           <p className="form-note">[PLATZHALTER: Datenschutz- und Kontaktinformation vor Veröffentlichung ergänzen.]</p>
           <button className="button button-primary" type="submit" disabled={submitting}>
-            {submitting ? 'Wird gesendet …' : 'Anfrage senden'} <span>↗</span>
+            {submitting ? 'Wird gesendet …' : 'Anfrage senden'} <span aria-hidden="true">→</span>
           </button>
           {status && <p className="form-status" role="status" aria-live="polite">{status}</p>}
         </form>

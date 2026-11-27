@@ -6,6 +6,7 @@ import {
 } from 'react';
 import { NavLink, Link } from 'react-router';
 import { site } from '../../data/site';
+import { ContourLines } from '../ui/Ornaments';
 
 export function Header() {
   const [open, setOpen] = useState(false);
@@ -74,18 +75,16 @@ export function Header() {
   return (
     <>
       <header className="site-header">
-        <div className="header-strip">
-          <span>Gaststätte · Ferienwohnungen · Eichwieserhof</span>
-          <span>{site.region}</span>
-        </div>
-        <div className="header-inner">
+        <div className="wrap header-inner">
           <Link
             to="/"
             className="brand"
             onClick={() => setOpen(false)}
             aria-label="Bernd’s Blockhaus – Startseite"
           >
-            <span className="brand-mark">BB</span>
+            <span className="brand-mark" aria-hidden="true">
+              BB
+            </span>
             <strong>Bernd’s Blockhaus</strong>
           </Link>
           <nav className="primary-nav" aria-label="Hauptnavigation">
@@ -112,7 +111,12 @@ export function Header() {
             aria-haspopup="dialog"
             onClick={() => setOpen(true)}
           >
-            ☰
+            <span className="menu-toggle-text" aria-hidden="true">
+              Menü
+            </span>
+            <span className="menu-toggle-icon" aria-hidden="true">
+              ☰
+            </span>
           </button>
         </div>
       </header>
@@ -131,7 +135,8 @@ export function Header() {
         >
           ×
         </button>
-        <nav aria-label="Menü">
+        <ContourLines className="mobile-menu-contours" />
+        <nav aria-label="Menü" data-reveal="stagger">
           {site.navigation.map((item) => (
             <NavLink key={item.to} to={item.to} onClick={handleClose}>
               {item.label}

@@ -1,11 +1,14 @@
 import { useRef, useState, type KeyboardEvent } from 'react';
-import type { MenuCategory } from '../../types/content';
+import type { MenuCategory, Photo as PhotoData } from '../../types/content';
+import { Photo } from '../ui/Photo';
 
 interface Props {
   categories: MenuCategory[];
+  /** Optional dish photo per category id, shown beside the list on wide screens. */
+  photos?: Partial<Record<string, PhotoData>>;
 }
 
-export function MenuTabs({ categories }: Props) {
+export function MenuTabs({ categories, photos = {} }: Props) {
   const [activeId, setActiveId] = useState(categories[0]?.id ?? '');
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const activeIndex = Math.max(
@@ -36,9 +39,10 @@ export function MenuTabs({ categories }: Props) {
   }
 
   if (!category) return null;
+  const photo = photos[category.id];
 
   return (
-    <>
+    <div className="menu-board">
       <div
         className="menu-tabs"
         role="tablist"
@@ -61,7 +65,7 @@ export function MenuTabs({ categories }: Props) {
               onClick={() => setActiveId(item.id)}
               onKeyDown={handleKeyDown}
             >
-              {item.title}
+              <span>{item.title}</span>
             </button>
           );
         })}
@@ -83,6 +87,11 @@ export function MenuTabs({ categories }: Props) {
           ))}
         </ul>
       </div>
-    </>
+      {photo && (
+        <div className="menu-photo" data-reveal="clip" key={category.id}>
+          <Photo photo={photo} />
+        </div>
+      )}
+    </div>
   );
 }

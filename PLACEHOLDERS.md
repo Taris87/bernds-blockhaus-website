@@ -21,6 +21,7 @@ Texte, Kontakte, Speisekarte, Ferienwohnungen, Eichwieserhof-Angaben, Impressum 
 - [ ] Ruhetage und Schlusszeiten der Gaststätte
 - [ ] Ferienwohnungen: Bedeutung von „ab Buchung von 3 Tagen“ (Mindestaufenthalt?), Endreinigung, Kurtaxe, Haustiere, An-/Abreisezeiten, Buchungsweg, Zahlungsarten
 - [ ] Anfahrtsbeschreibung (sichtbarer Platzhalter auf der Kontaktseite)
+- [ ] Karte/Lageplan auf der Kontaktseite (sichtbarer Platzhalter) – erst nach Datenschutz-Entscheidung
 - [ ] Hofgeschichte und Besuchsmöglichkeiten Eichwieserhof (sichtbarer Platzhalter); Hofladen: Öffnungszeiten und Sortiment
 - [ ] Kurztext Eichwieserhof (Startseite/Seiteneinleitung) wurde aus Fakten der alten Seite neu formuliert – Freigabe durch den Betreiber
 - [ ] Slogans und Überschriften der neuen Seite ohne Beleg in der alten Seite (z. B. „Ankommen. Wohlfühlen. Genießen.“, „Ein Platz zum Bleiben.“, Footer-Satz) – Freigabe durch den Betreiber

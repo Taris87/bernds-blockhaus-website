@@ -1,31 +1,45 @@
 import { Link } from 'react-router';
 import { usePageMeta } from '../hooks/usePageMeta';
-import { gastronomyText, site } from '../data/site';
+import { gastronomyText, marqueeFacts, microTexts, site } from '../data/site';
 import { photos } from '../data/photos';
 import { eichwieserhofSummary } from '../data/eichwieserhof';
 import { apartmentsTeaser } from '../data/apartments';
-import { Photo } from '../components/ui/Photo';
+import { galleryItems, galleryTitle } from '../data/gallery';
+import { Collage, Stamp } from '../components/ui/Collage';
+import { PhotoPrint } from '../components/ui/PhotoPrint';
+import { Sign } from '../components/ui/Sign';
+import { Marquee } from '../components/ui/Marquee';
+import { IndexRow } from '../components/ui/IndexRow';
+import { ImageStrip } from '../components/ui/ImageStrip';
+import { PanoramaBand } from '../components/ui/PanoramaBand';
+import { OpeningHoursBoard } from '../components/ui/OpeningHoursBoard';
+import { CelebrationSection } from '../components/sections/CelebrationSection';
 
-const pillars = [
-  {
-    title: 'Gaststätte',
-    text: gastronomyText.kitchen,
-    to: '/gaststaette',
-    photo: photos.blockhausLavendel,
-  },
-  {
-    title: 'Ferienwohnungen',
-    text: apartmentsTeaser,
-    to: '/ferienwohnungen',
-    photo: photos.fewoGrossSchlafzimmer,
-  },
-  {
-    title: 'Eichwieserhof',
-    text: eichwieserhofSummary,
-    to: '/eichwieserhof',
-    photo: photos.islaenderWiese,
-  },
-];
+const stripPhotos = [
+  photos.blockhausTeichSommer,
+  photos.blockhausTeichSchilf,
+  photos.blockhausAbendlicht,
+  photos.blockhausGetreide,
+  photos.blockhausWinterNah,
+  photos.festtafel,
+  photos.blockhausWinterFern,
+  photos.blockhausWeitblick,
+].map((photo) => ({ photo, title: galleryTitle(photo) }));
+
+/** Hero title “Ankommen. Wohlfühlen. Genießen.” as one line per word; last word accented. */
+function HeroTitle({ text }: { text: string }) {
+  const words = text.split(/\s+/);
+  return (
+    <h1 className="hero-title" data-reveal="text">
+      {words.map((word, index) => (
+        <span className="hero-title-line" key={word}>
+          {index === words.length - 1 ? <em>{word}</em> : word}
+          {index < words.length - 1 ? ' ' : ''}
+        </span>
+      ))}
+    </h1>
+  );
+}
 
 export function HomePage() {
   usePageMeta(
@@ -35,69 +49,134 @@ export function HomePage() {
   return (
     <>
       <section className="hero">
-        <div className="hero-image" aria-hidden="true" />
-        <div className="hero-shade" />
-        <figure className="hero-photo">
-          <Photo photo={photos.blockhausRosen} />
-        </figure>
-        <div className="hero-content">
-          <p className="eyebrow">{site.heroEyebrow}</p>
-          <h1>{site.heroTitle}</h1>
-          <p>{site.heroDescription}</p>
-          <Link className="button button-light" to="/kontakt">
-            Kontakt aufnehmen <span>↗</span>
-          </Link>
+        <div className="wrap hero-grid">
+          <div className="hero-head">
+            <Sign>{microTexts.heroLabel}</Sign>
+            <p className="hero-eyebrow" data-reveal="fade">
+              {site.heroEyebrow}
+            </p>
+            <HeroTitle text={site.heroTitle} />
+          </div>
+          <Collage preset="hero" panel className="hero-collage">
+            <PhotoPrint photo={photos.blockhausRosen} caption="Rosen und Lavendel" slot="slot-a" tilt={-2} tape eager />
+            <PhotoPrint photo={photos.gerichtHausmacher} caption="Hausmacher Platte" slot="slot-b" tilt={4} eager />
+            <PhotoPrint photo={photos.blockhausWegweiser} caption="Der Wegweiser" slot="slot-c" tilt={-5} />
+            <PhotoPrint photo={photos.islaenderSonnenblume} caption="Isländer" slot="slot-d" tilt={3} />
+            <Stamp value={microTexts.stampValue} label={microTexts.stampLabel} />
+          </Collage>
+          <div className="hero-body">
+            <p className="lead" data-reveal="fade">
+              {site.heroDescription}
+            </p>
+            <div className="button-row" data-reveal="fade">
+              <Link className="button button-primary" to="/kontakt">
+                Kontakt aufnehmen <span aria-hidden="true">→</span>
+              </Link>
+              <Link className="button button-ghost" to="/gaststaette#speisekarte">
+                {microTexts.toMenu}
+              </Link>
+            </div>
+            <OpeningHoursBoard level={2} />
+          </div>
         </div>
-        <span className="hero-index">01 / BERND’S BLOCKHAUS</span>
       </section>
-      <section className="intro-section section-wrap">
-        <div>
-          <p className="eyebrow">Willkommen</p>
-          <h2>
-            Ein Platz zum Bleiben.
+
+      <Marquee items={marqueeFacts} pauseLabel={microTexts.pauseTicker} />
+
+      <section className="section index-section" aria-labelledby="drei-seiten">
+        <div className="wrap">
+          <p className="label">Entdecken</p>
+          <h2 id="drei-seiten" className="section-title" data-reveal="text">
+            Drei Seiten eines
             <br />
-            <em>Ein Moment zum Genießen.</em>
+            <em>besonderen Ortes.</em>
+          </h2>
+          <div className="index-list">
+            <IndexRow
+              number="01"
+              title="Gaststätte"
+              link={{ to: '/gaststaette', label: 'Zur Gaststätte' }}
+              photos={[
+                { photo: photos.blockhausTerrasse, caption: 'Die Terrasse' },
+                { photo: photos.gerichtSchnitzel, caption: 'Schnitzel mit Pommes' },
+              ]}
+            >
+              <p>{gastronomyText.kitchen}</p>
+            </IndexRow>
+            <IndexRow
+              number="02"
+              title={<>Ferien&shy;wohnungen</>}
+              link={{ to: '/ferienwohnungen', label: 'Zu den Ferienwohnungen' }}
+              photos={[
+                { photo: photos.fewoGrossSchlafzimmer, caption: 'Schlafzimmer (Süd)' },
+                { photo: photos.fewoKleinBalkon, caption: 'Balkon (Nord)' },
+              ]}
+              mirrored
+            >
+              <p>{apartmentsTeaser}</p>
+            </IndexRow>
+            <IndexRow
+              number="03"
+              title="Eichwieserhof"
+              link={{ to: '/eichwieserhof', label: 'Zum Eichwieserhof' }}
+              photos={[
+                { photo: photos.islaenderWiese, caption: 'Löwenzahnwiese' },
+                { photo: photos.angusBlockhaus, caption: 'Angus-Rinder' },
+              ]}
+            >
+              <p>{eichwieserhofSummary}</p>
+            </IndexRow>
+          </div>
+        </div>
+      </section>
+
+      <section className="section strip-section" aria-labelledby="geschichten">
+        <div className="wrap">
+          <p className="label">Galerie</p>
+          <h2 id="geschichten" className="section-title" data-reveal="text">
+            Ein Ort voller
+            <br />
+            <em>Geschichten.</em>
           </h2>
         </div>
-        <p className="intro-copy">{gastronomyText.celebrations}</p>
+        <ImageStrip
+          items={stripPhotos}
+          labelledBy="geschichten"
+          action={
+            <Sign to="/galerie">
+              Alle {galleryItems.length} Fotos
+            </Sign>
+          }
+        />
       </section>
-      <section className="pillars-section">
-        <div className="section-wrap">
-          <div className="section-heading">
-            <p className="eyebrow">Entdecken</p>
-            <h2>
-              Drei Seiten eines
-              <br />
-              <em>besonderen Ortes.</em>
-            </h2>
-          </div>
-          <div className="pillar-grid">
-            {pillars.map((pillar) => (
-              <article className="pillar-card" key={pillar.to}>
-                <div className="pillar-image">
-                  <Photo photo={pillar.photo} className="photo-cover" />
-                </div>
-                <div className="pillar-copy">
-                  <h3>{pillar.title}</h3>
-                  <p>{pillar.text}</p>
-                  <Link to={pillar.to}>Mehr erfahren ↗</Link>
-                </div>
-              </article>
-            ))}
-          </div>
+
+      <CelebrationSection variant="short" />
+
+      <PanoramaBand
+        labelledBy="hof-teaser"
+        panorama={{ photo: photos.angusHerde, caption: 'Angus-Herde' }}
+        prints={[
+          { photo: photos.islaenderSonnenblumenfeld, caption: 'Im Sonnenblumenfeld' },
+          { photo: photos.islaenderAuge, caption: 'Nahaufnahme' },
+        ]}
+      >
+        <Sign variant="raps">Leben auf dem Hof</Sign>
+        <h2 id="hof-teaser" data-reveal="text">
+          Isländer vom <em>Eichwieserhof.</em>
+        </h2>
+        <p>{eichwieserhofSummary}</p>
+        <div className="sign-stack">
+          <Sign variant="ivory" to="/eichwieserhof#deckhengste">
+            Deckhengste
+          </Sign>
+          <Sign variant="ivory" to="/eichwieserhof#verkaufspferde">
+            Verkaufspferde
+          </Sign>
+          <Sign variant="ivory" to="/eichwieserhof#rindfleisch">
+            Rindfleisch bestellen
+          </Sign>
         </div>
-      </section>
-      <section className="quote-section">
-        <p className="eyebrow">Bernd’s Blockhaus</p>
-        <blockquote>
-          „Ein Platz zum Bleiben.
-          <br />
-          <em>Ein Moment zum Genießen.“</em>
-        </blockquote>
-        <Link to="/galerie" className="text-link">
-          Eindrücke sammeln ↗
-        </Link>
-      </section>
+      </PanoramaBand>
     </>
   );
 }
