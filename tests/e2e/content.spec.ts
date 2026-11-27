@@ -119,3 +119,28 @@ test('hidden hero photo is not downloaded on small screens but shown on desktop'
     )
     .toBe(true);
 });
+
+for (const route of [...routes, '/impressum', '/datenschutz']) {
+  test(`heading levels on ${route} start at h1 and never skip a level`, async ({
+    page,
+  }) => {
+    await page.goto(`${base}${route}`);
+    await expect(page.locator('main h1')).toBeVisible();
+    const levels = await page
+      .locator('main :is(h1, h2, h3, h4, h5, h6)')
+      .evaluateAll((headings) =>
+        headings.map((heading) => Number(heading.tagName.slice(1))),
+      );
+    expect(levels[0]).toBe(1);
+    if (routes.includes(route)) {
+      expect(levels, `content page ${route} has an h2`).toContain(2);
+    }
+    levels.forEach((level, index) => {
+      if (index === 0) return;
+      expect(
+        level - levels[index - 1]!,
+        `h${levels[index - 1]} -> h${level} on ${route}`,
+      ).toBeLessThanOrEqual(1);
+    });
+  });
+}

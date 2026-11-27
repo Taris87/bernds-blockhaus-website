@@ -3,5 +3,5 @@ import { PageIntro } from './PageIntro';
 import { GalleryGrid } from '../components/gallery/GalleryGrid';
 export function GalleryPage() {
   usePageMeta('Galerie', 'Fotos von Bernd’s Blockhaus in Weilerbach: Gaststätte und Gerichte, Ferienwohnungen, Islandpferde und Angus-Rinder vom Eichwieserhof.');
-  return <><PageIntro eyebrow="Einblicke" title={<>Ein Ort voller<br /><em>Geschichten.</em></>} copy="Eindrücke von Bernd’s Blockhaus, aus der Küche, den Ferienwohnungen und vom Eichwieserhof." /><section className="content-section section-wrap"><GalleryGrid /></section></>;
+  return <><PageIntro eyebrow="Einblicke" title={<>Ein Ort voller<br /><em>Geschichten.</em></>} copy="Eindrücke von Bernd’s Blockhaus, aus der Küche, den Ferienwohnungen und vom Eichwieserhof." /><section className="content-section section-wrap" aria-labelledby="galerie-fotos"><h2 id="galerie-fotos" className="sr-only">Fotos</h2><GalleryGrid /></section></>;
 }

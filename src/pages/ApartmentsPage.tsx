@@ -28,7 +28,13 @@ export function ApartmentsPage() {
         }
         copy={apartmentsIntro}
       />
-      <section className="content-section section-wrap">
+      <section
+        className="content-section section-wrap"
+        aria-labelledby="fewo-uebersicht"
+      >
+        <h2 id="fewo-uebersicht" className="sr-only">
+          Unsere Ferienwohnungen
+        </h2>
         <div className="apartment-grid">
           {apartments.map((apartment) => (
             <article
