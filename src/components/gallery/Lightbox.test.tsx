@@ -99,63 +99,66 @@ describe('Lightbox Strict Mode lifecycle', () => {
       queuedMicrotasks.push(callback);
     });
 
-    await act(async () => {
-      root.render(<StrictMode><GalleryHarness /></StrictMode>);
-    });
-    const oldTrigger = container.querySelector<HTMLButtonElement>('button');
-    expect(oldTrigger).not.toBeNull();
-    await act(async () => {
-      oldTrigger?.focus();
-      oldTrigger?.click();
-    });
+    try {
+      await act(async () => {
+        root.render(<StrictMode><GalleryHarness /></StrictMode>);
+      });
+      const oldTrigger = container.querySelector<HTMLButtonElement>('button');
+      expect(oldTrigger).not.toBeNull();
+      await act(async () => {
+        oldTrigger?.focus();
+        oldTrigger?.click();
+      });
 
-    const oldOpeningTasks = [...queuedMicrotasks];
-    expect(oldOpeningTasks.length).toBeGreaterThan(0);
-    expect(showModalCalls).toBe(0);
+      const oldOpeningTasks = [...queuedMicrotasks];
+      expect(oldOpeningTasks.length).toBeGreaterThan(0);
+      expect(showModalCalls).toBe(0);
 
-    await act(async () => {
-      root.render(<p>Interim route</p>);
-    });
-    expect(container.querySelector('dialog')).toBeNull();
-    expect(oldTrigger?.isConnected).toBe(false);
+      await act(async () => {
+        root.render(<p>Interim route</p>);
+      });
+      expect(container.querySelector('dialog')).toBeNull();
+      expect(oldTrigger?.isConnected).toBe(false);
 
-    queuedMicrotasks.length = 0;
-    await act(async () => {
-      root.render(<StrictMode><GalleryHarness /></StrictMode>);
-    });
-    const newTrigger = container.querySelector<HTMLButtonElement>('button');
-    expect(newTrigger).not.toBeNull();
-    expect(newTrigger).not.toBe(oldTrigger);
+      queuedMicrotasks.length = 0;
+      await act(async () => {
+        root.render(<StrictMode><GalleryHarness /></StrictMode>);
+      });
+      const newTrigger = container.querySelector<HTMLButtonElement>('button');
+      expect(newTrigger).not.toBeNull();
+      expect(newTrigger).not.toBe(oldTrigger);
 
-    await act(async () => {
-      newTrigger?.focus();
-      newTrigger?.click();
-    });
-    const newOpeningTasks = [...queuedMicrotasks];
-    expect(newOpeningTasks.length).toBeGreaterThan(0);
+      await act(async () => {
+        newTrigger?.focus();
+        newTrigger?.click();
+      });
+      const newOpeningTasks = [...queuedMicrotasks];
+      expect(newOpeningTasks.length).toBeGreaterThan(0);
 
-    // Deliberately run the old queued callbacks after the new instance has
-    // mounted but before its own open callback is allowed to execute.
-    const focusCallsBeforeStaleTasks = focusSpy.mock.calls.length;
-    await act(async () => {
-      oldOpeningTasks.forEach((callback) => callback());
-    });
+      // Deliberately run the old queued callbacks after the new instance has
+      // mounted but before its own open callback is allowed to execute.
+      const focusCallsBeforeStaleTasks = focusSpy.mock.calls.length;
+      await act(async () => {
+        oldOpeningTasks.forEach((callback) => callback());
+      });
 
-    expect(showModalCalls).toBe(0);
-    expect(container.querySelector('dialog[open]')).toBeNull();
-    expect(focusSpy.mock.calls.length).toBe(focusCallsBeforeStaleTasks);
+      expect(showModalCalls).toBe(0);
+      expect(container.querySelector('dialog[open]')).toBeNull();
+      expect(focusSpy.mock.calls.length).toBe(focusCallsBeforeStaleTasks);
 
-    await act(async () => {
-      newOpeningTasks.forEach((callback) => callback());
-    });
+      await act(async () => {
+        newOpeningTasks.forEach((callback) => callback());
+      });
 
-    expect(showModalCalls).toBe(1);
-    expect(container.querySelector('dialog[open]')).not.toBeNull();
-    expect(document.activeElement).toBe(container.querySelector('.lightbox-close'));
-    expect(document.activeElement).not.toBe(oldTrigger);
+      expect(showModalCalls).toBe(1);
+      expect(container.querySelector('dialog[open]')).not.toBeNull();
+      expect(document.activeElement).toBe(container.querySelector('.lightbox-close'));
+      expect(document.activeElement).not.toBe(oldTrigger);
+    } finally {
+      queueMicrotaskSpy.mockRestore();
+      focusSpy.mockRestore();
+    }
 
-    queueMicrotaskSpy.mockRestore();
-    focusSpy.mockRestore();
     expect(globalThis.queueMicrotask).toBe(originalQueueMicrotask);
   });
   it('activates the dialog once after Strict Mode effect replay and removes its key listener', async () => {
