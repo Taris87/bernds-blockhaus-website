@@ -160,6 +160,9 @@ h2 em, h1 em, blockquote em { color: var(--color-terracotta-text); font-weight: 
   .intro-section, .content-section { padding-top: 75px; padding-bottom: 75px; }
   .pillars-section, .menu-section, .form-section { padding-block: 75px; }
   .pillar-grid, .apartment-grid, .gallery-grid, .form-grid { grid-template-columns: 1fr; }
+  .menu-item { flex-wrap: wrap; }
+  .menu-item > div { min-width: 0; overflow-wrap: anywhere; }
+  .menu-item > span { white-space: normal; }
   .gallery-tile:nth-child(3n + 2) { transform: none; }
   .inquiry-form { padding: 20px; }
   .lightbox { padding: 18px; }
