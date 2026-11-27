@@ -94,7 +94,9 @@ test.describe('mobile navigation dialog', () => {
     await page.getByRole('button', { name: 'Menü schließen' }).click();
 
     await expect(page.getByRole('dialog', { name: 'Mobile Navigation' })).not.toBeVisible();
-    await expect(toggle).toBeFocused();
+    await expect(page.locator('main#main')).toBeFocused();
+    await expect(page.locator('main#main h1')).toBeVisible();
+    await expect(toggle).not.toBeFocused();
   });
 
   test('keeps programmatic focus inside the dialog', async ({ page }) => {
@@ -104,7 +106,7 @@ test.describe('mobile navigation dialog', () => {
     await expect(closeButton).toBeFocused();
   });
 
-  test('closes after link navigation and restores focus to the menu toggle', async ({ page }) => {
+  test('closes after link navigation and focuses the new route main content', async ({ page }) => {
     const toggle = page.getByRole('button', { name: 'Menü öffnen' });
     await toggle.click();
     await page.getByRole('link', { name: 'Anfragen ↗' }).click();

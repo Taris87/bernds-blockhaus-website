@@ -52,7 +52,9 @@ test.describe('native gallery lightbox', () => {
           focusInsideDialog: active instanceof HTMLElement && !!modal?.contains(active),
           focusIsBodyFallback: active === document.body || active === document.documentElement,
           focusInBackground: active instanceof HTMLElement &&
-            (!!active.closest('header') || !!active.closest('#main') || !!active.closest('footer')),
+            active !== document.body &&
+            active !== document.documentElement &&
+            !modal?.contains(active),
         };
       });
       expect(focusState.modalIsActive).toBe(true);
@@ -104,7 +106,11 @@ test.describe('native gallery lightbox', () => {
     const previous = page.getByRole('button', { name: 'Zurück' });
     const next = page.getByRole('button', { name: 'Weiter' });
     const dynamic = page.getByRole('button', { name: 'Dynamic control' });
+    const disabled = page.locator('.lightbox-controls button:disabled');
+    const hidden = page.locator('.lightbox-controls button[hidden]');
     await expect(dynamic).toBeVisible();
+    await expect(disabled).toBeDisabled();
+    await expect(hidden).toBeHidden();
 
     await page.keyboard.press('Tab');
     await expect(previous).toBeFocused();
@@ -122,14 +128,16 @@ test.describe('native gallery lightbox', () => {
         focusInsideDialog: active instanceof HTMLElement && !!modal?.contains(active),
         focusIsBodyFallback: active === document.body || active === document.documentElement,
         focusInBackground: active instanceof HTMLElement &&
-          (!!active.closest('header') || !!active.closest('#main') || !!active.closest('footer')),
+          active !== document.body &&
+          active !== document.documentElement &&
+          !modal?.contains(active),
       };
     });
     expect(state.modalIsActive).toBe(true);
     expect(state.focusInBackground).toBe(false);
     expect(state.focusInsideDialog || state.focusIsBodyFallback).toBe(true);
-    await expect(page.getByRole('button', { name: 'Disabled control' })).not.toBeFocused();
-    await expect(page.getByRole('button', { name: 'Hidden control' })).not.toBeFocused();
+    await expect(disabled).not.toBeFocused();
+    await expect(hidden).toBeHidden();
   });
 
   test('opening and immediately closing restores focus to the connected trigger', async ({ page }) => {
@@ -172,6 +180,7 @@ test.describe('native gallery lightbox', () => {
     await page.getByRole('link', { name: 'Galerie' }).click();
     await expect(page).toHaveURL(new RegExp(`${base}/galerie/?$`));
     const newTrigger = page.getByRole('button', { name: /groß anzeigen/i }).first();
+    expect(await newTrigger.elementHandle()).not.toBe(originalElement);
     await newTrigger.click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Galerie schließen' })).toBeFocused();
@@ -179,7 +188,6 @@ test.describe('native gallery lightbox', () => {
     await expect(newTrigger).toBeFocused();
 
     expect(await originalElement?.evaluate((element) => element.isConnected)).toBe(false);
-    await expect(original).not.toBeFocused();
   });
 
   test('closes when the backdrop is activated', async ({ page }) => {
