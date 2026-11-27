@@ -93,6 +93,7 @@ async function renderGallery(strict = true) {
 describe('Lightbox Strict Mode lifecycle', () => {
   it('ignores a stale opening microtask after unmount and remount of a new instance', async () => {
     const queuedMicrotasks: VoidFunction[] = [];
+    const originalQueueMicrotask = globalThis.queueMicrotask;
     const queueMicrotaskSpy = vi.spyOn(globalThis, 'queueMicrotask').mockImplementation((callback) => {
       queuedMicrotasks.push(callback);
     });
@@ -153,6 +154,7 @@ describe('Lightbox Strict Mode lifecycle', () => {
     expect(document.activeElement).not.toBe(oldTrigger);
 
     queueMicrotaskSpy.mockRestore();
+    expect(globalThis.queueMicrotask).toBe(originalQueueMicrotask);
   });
   it('activates the dialog once after Strict Mode effect replay and removes its key listener', async () => {
     const trigger = await renderGallery(true);
