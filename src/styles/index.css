@@ -165,8 +165,9 @@ h2 em, h1 em, blockquote em { color: var(--color-terracotta-text); font-weight: 
   .menu-item > span { white-space: normal; }
   .gallery-tile:nth-child(3n + 2) { transform: none; }
   .inquiry-form { padding: 20px; }
-  .lightbox { padding: 18px; }
-  .lightbox-image { min-height: 260px; }
+  .lightbox-dialog { padding: 12px; }
+  .lightbox-panel { max-height: calc(100dvh - 24px); padding: 20px; }
+  .lightbox-image { height: min(38dvh, 320px); min-height: 160px; }
   .footer-grid { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {

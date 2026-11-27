@@ -5,6 +5,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Lightbox } from './Lightbox';
 import { galleryItems } from '../../data/gallery';
 
+// These jsdom tests mock showModal()/close() only to exercise React effect,
+// cleanup and callback scheduling. They do not prove native dialog modality,
+// inert background behavior, browser focus trapping, or native cancel semantics.
+// Those browser semantics are covered by the Playwright Chromium suite.
+
 let container: HTMLDivElement;
 let root: ReturnType<typeof createRoot>;
 let showModalCalls: number;
@@ -86,6 +91,69 @@ async function renderGallery(strict = true) {
 }
 
 describe('Lightbox Strict Mode lifecycle', () => {
+  it('ignores a stale opening microtask after unmount and remount of a new instance', async () => {
+    const queuedMicrotasks: VoidFunction[] = [];
+    const queueMicrotaskSpy = vi.spyOn(globalThis, 'queueMicrotask').mockImplementation((callback) => {
+      queuedMicrotasks.push(callback);
+    });
+
+    await act(async () => {
+      root.render(<StrictMode><GalleryHarness /></StrictMode>);
+    });
+    const oldTrigger = container.querySelector<HTMLButtonElement>('button');
+    expect(oldTrigger).not.toBeNull();
+    await act(async () => {
+      oldTrigger?.focus();
+      oldTrigger?.click();
+    });
+
+    const oldOpeningTasks = [...queuedMicrotasks];
+    expect(oldOpeningTasks.length).toBeGreaterThan(0);
+    expect(showModalCalls).toBe(0);
+
+    await act(async () => {
+      root.render(<p>Interim route</p>);
+    });
+    expect(container.querySelector('dialog')).toBeNull();
+    expect(oldTrigger?.isConnected).toBe(false);
+
+    queuedMicrotasks.length = 0;
+    await act(async () => {
+      root.render(<StrictMode><GalleryHarness /></StrictMode>);
+    });
+    const newTrigger = container.querySelector<HTMLButtonElement>('button');
+    expect(newTrigger).not.toBeNull();
+    expect(newTrigger).not.toBe(oldTrigger);
+
+    await act(async () => {
+      newTrigger?.focus();
+      newTrigger?.click();
+    });
+    const newOpeningTasks = [...queuedMicrotasks];
+    expect(newOpeningTasks.length).toBeGreaterThan(0);
+
+    // Deliberately run the old queued callbacks after the new instance has
+    // mounted but before its own open callback is allowed to execute.
+    await act(async () => {
+      oldOpeningTasks.forEach((callback) => callback());
+    });
+
+    expect(showModalCalls).toBe(0);
+    expect(container.querySelector('dialog[open]')).toBeNull();
+    expect(document.activeElement).not.toBe(oldTrigger);
+    expect(document.activeElement).not.toBe(newTrigger);
+
+    await act(async () => {
+      newOpeningTasks.forEach((callback) => callback());
+    });
+
+    expect(showModalCalls).toBe(1);
+    expect(container.querySelector('dialog[open]')).not.toBeNull();
+    expect(document.activeElement).toBe(container.querySelector('.lightbox-close'));
+    expect(document.activeElement).not.toBe(oldTrigger);
+
+    queueMicrotaskSpy.mockRestore();
+  });
   it('activates the dialog once after Strict Mode effect replay and removes its key listener', async () => {
     const trigger = await renderGallery(true);
 
