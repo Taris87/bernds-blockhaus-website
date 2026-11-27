@@ -4,51 +4,26 @@ import { site } from '../../data/site';
 
 export function Header() {
   const [open, setOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (!open) return;
+    const dialog = dialogRef.current;
+    if (!open || !dialog) return;
 
-    const menu = menuRef.current;
-    const toggleButton = toggleRef.current;
-    const closeButton =
-      menu?.querySelector<HTMLButtonElement>('.mobile-menu-close');
-
-    closeButton?.focus();
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        setOpen(false);
-        toggleButton?.focus();
-        return;
-      }
-
-      if (event.key !== 'Tab' || !menu) return;
-
-      const focusable = menu.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      );
-      const first = focusable.item(0);
-      const last = focusable.item(focusable.length - 1);
-
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last?.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first?.focus();
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown);
+    dialog.showModal();
+    dialog.querySelector<HTMLButtonElement>('.mobile-menu-close')?.focus();
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      toggleButton?.focus();
+      if (dialog.open) dialog.close();
+      toggleRef.current?.focus();
     };
   }, [open]);
+
+  function handleCancel(event: React.SyntheticEvent<HTMLDialogElement>) {
+    event.preventDefault();
+    setOpen(false);
+  }
 
   return (
     <>
@@ -95,41 +70,36 @@ export function Header() {
           </button>
         </div>
       </header>
-      {open && (
-        <div
-          ref={menuRef}
-          id="mobile-navigation"
-          className="mobile-menu"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Mobile Navigation"
+      <dialog
+        ref={dialogRef}
+        id="mobile-navigation"
+        className="mobile-menu"
+        aria-label="Mobile Navigation"
+        onCancel={handleCancel}
+      >
+        <button
+          className="mobile-menu-close"
+          type="button"
+          aria-label="Menü schließen"
+          onClick={() => setOpen(false)}
         >
-          <button
-            className="mobile-menu-close"
-            type="button"
-            aria-label="Menü schließen"
-            onClick={() => setOpen(false)}
-          >
-            ×
-          </button>
-
-          <nav aria-label="Menü">
-            {site.navigation.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                onClick={() => setOpen(false)}
-              >
-                {item.label}
-              </NavLink>
-            ))}
-
-            <Link to="/kontakt" onClick={() => setOpen(false)}>
-              Anfragen ↗
-            </Link>
-          </nav>
-        </div>
-      )}
+          ×
+        </button>
+        <nav aria-label="Menü">
+          {site.navigation.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              onClick={() => setOpen(false)}
+            >
+              {item.label}
+            </NavLink>
+          ))}
+          <Link to="/kontakt" onClick={() => setOpen(false)}>
+            Anfragen ↗
+          </Link>
+        </nav>
+      </dialog>
     </>
   );
 }
