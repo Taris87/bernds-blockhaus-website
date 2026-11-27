@@ -32,7 +32,9 @@ describe('Header mobile navigation', () => {
 
     const dialog = screen.getByRole('dialog', { name: 'Mobile Navigation' });
     expect(dialog).toHaveAttribute('open');
-    expect(screen.getByRole('button', { name: 'Menü schließen' })).toHaveFocus();
+    expect(
+      screen.getByRole('button', { name: 'Menü schließen' }),
+    ).toHaveFocus();
   });
 
   it('closes the dialog with Escape and returns focus to the toggle button', () => {
@@ -41,9 +43,17 @@ describe('Header mobile navigation', () => {
     const toggle = screen.getByRole('button', { name: 'Menü öffnen' });
     fireEvent.click(toggle);
 
-    fireEvent.cancel(screen.getByRole('dialog', { name: 'Mobile Navigation' }));
+    fireEvent(
+      screen.getByRole('dialog', { name: 'Mobile Navigation' }),
+      new Event('cancel', {
+        bubbles: false,
+        cancelable: true,
+      }),
+    );
 
-    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open');
+    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute(
+      'open',
+    );
     expect(toggle).toHaveFocus();
   });
 
@@ -53,7 +63,9 @@ describe('Header mobile navigation', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
     fireEvent.click(screen.getByRole('button', { name: 'Menü schließen' }));
 
-    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open');
+    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute(
+      'open',
+    );
   });
 
   it('closes the dialog when a navigation link is selected', () => {
@@ -62,7 +74,9 @@ describe('Header mobile navigation', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
     fireEvent.click(screen.getByRole('link', { name: 'Anfragen ↗' }));
 
-    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open');
+    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute(
+      'open',
+    );
   });
 
   it('exposes the menu links inside a labelled navigation landmark', () => {
@@ -70,7 +84,12 @@ describe('Header mobile navigation', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
 
-    expect(screen.getByRole('navigation', { name: 'Menü' })).toBeInTheDocument();
-    expect(screen.getByRole('dialog')).toHaveAttribute('aria-label', 'Mobile Navigation');
+    expect(
+      screen.getByRole('navigation', { name: 'Menü' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toHaveAttribute(
+      'aria-label',
+      'Mobile Navigation',
+    );
   });
 });
