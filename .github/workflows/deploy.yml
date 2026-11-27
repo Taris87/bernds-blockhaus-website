@@ -25,8 +25,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          # Enable npm cache after package-lock.json is committed.
-          cache: ''
+          cache: npm
 
       - name: Verify npm and lockfile
         run: |
