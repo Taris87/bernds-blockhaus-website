@@ -4,7 +4,7 @@
   "repository": "https://github.com/Taris87/bernds-blockhaus-website",
   "localPath": "C:\\Users\\Steven\\OneDrive\\Desktop\\GitHub_Repositorys\\bernds-blockhaus-website",
   "defaultBranch": "main",
-  "currentBranch": "fix/qa-043-same-route-navigation",
+  "currentBranch": "feat/inhalte-alte-website",
   "deployment": {
     "target": "github-pages",
     "trigger": "push auf main (.github/workflows/deploy.yml) – Merge = Deployment",
@@ -23,8 +23,8 @@
     "ESLint 10",
     "Prettier 3"
   ],
-  "sourceWebsite": null,
-  "status": "QA-043 fertig – PR zur Freigabe",
+  "sourceWebsite": "bernds-blockhaus.de (19 Screenshots vom 27.11.2026, Inhalte laut Benutzer aktuell)",
+  "status": "in Arbeit – Inhalte der alten Website übernehmen",
   "maturity": {
     "codeComplete": true,
     "qaPassed": true,
@@ -33,7 +33,7 @@
     "productionReady": false,
     "deploymentApproved": false
   },
-  "activeAgents": [],
+  "activeAgents": ["frontend-architect"],
   "openTasks": [
     "QA-044 (Issue #5): visuelle Responsive-Prüfung und Screenshot-Regression",
     "QA-004: sitemap.xml und robots.txt ergänzen (Folge-PR)",
@@ -42,8 +42,8 @@
     "Folge-PR: Prettier-Formatierung von 38 Dateien, danach format:check in CI aufnehmen"
   ],
   "qaStatus": {
-    "lastGate": "PASS (wird für finalen HEAD erneut ausgeführt)",
-    "lastGateSha": "4735a5561da16adf9687ccf0b870c834f9c7361d",
+    "lastGate": "PASS",
+    "lastGateSha": "f9a792582a4767c22f80e096ea481004dd8909dc",
     "lastQaReport": ".architect/qa/qa-report-2026-11-27.md",
     "qaVerdict": "CONDITIONAL PASS",
     "openFindings": [
@@ -70,11 +70,20 @@
       "state": "MERGED",
       "branch": "fix/qa-022-lightbox-qa-023-responsive",
       "mergeCommit": "b231c4db4c2465741ee5be8eacb86e100e73e44a"
+    },
+    {
+      "number": 8,
+      "state": "MERGED",
+      "branch": "fix/qa-043-same-route-navigation",
+      "mergeCommit": "00d78eb",
+      "deployed": true
     }
   ],
   "lastChanges": [
     "2026-11-27: Projekt in WEBSITE ARCHITECT eingebunden, .gitattributes (LF) ergänzt",
     "2026-11-27: QA-043 – 6 Unit- + 6 E2E-Tests für Query-/Hash-Navigation auf gleicher Route (8392d60)",
-    "2026-11-27: 320px-Overflow auf / behoben (.pillar-card min-width:0, h3 Umbruch) (4735a55)"
+    "2026-11-27: 320px-Overflow auf / behoben (.pillar-card min-width:0, h3 Umbruch) (4735a55)",
+    "2026-11-27: PR #8 von Benutzer gemergt (00d78eb), GitHub Pages deployt, Issue #4 geschlossen",
+    "2026-11-27: Alte Website inventarisiert (content-inventory.md, 145 Fotos extrahiert)"
   ]
 }
