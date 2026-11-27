@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type SyntheticEvent } from 'react';
 import { NavLink, Link } from 'react-router';
 import { site } from '../../data/site';
 
@@ -20,7 +20,7 @@ export function Header() {
     };
   }, [open]);
 
-  function handleCancel(event: React.SyntheticEvent<HTMLDialogElement>) {
+  function handleCancel(event: SyntheticEvent<HTMLDialogElement>) {
     event.preventDefault();
     setOpen(false);
   }
