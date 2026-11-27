@@ -16,19 +16,27 @@ beforeEach(() => {
   container = document.createElement('div');
   document.body.append(container);
   root = createRoot(container);
-  showModal = vi.fn(function (this: HTMLDialogElement) { this.setAttribute('open', ''); });
-  closeDialog = vi.fn(function (this: HTMLDialogElement) { this.removeAttribute('open'); });
-  vi.spyOn(HTMLDialogElement.prototype, 'showModal').mockImplementation(showModal);
-  vi.spyOn(HTMLDialogElement.prototype, 'close').mockImplementation(closeDialog);
+  showModal = vi.fn();
+  closeDialog = vi.fn();
+  vi.spyOn(HTMLDialogElement.prototype, 'showModal').mockImplementation(function (this: HTMLDialogElement) {
+    showModal();
+    this.setAttribute('open', '');
+  });
+  vi.spyOn(HTMLDialogElement.prototype, 'close').mockImplementation(function (this: HTMLDialogElement) {
+    closeDialog();
+    this.removeAttribute('open');
+  });
   addedListeners = [];
   removedListeners = [];
+  const originalAdd = document.addEventListener.bind(document);
+  const originalRemove = document.removeEventListener.bind(document);
   vi.spyOn(document, 'addEventListener').mockImplementation((type, listener, options) => {
     if (type === 'keydown' && typeof listener === 'function') addedListeners.push(listener as EventListener);
-    return EventTarget.prototype.addEventListener.call(document, type, listener, options);
+    originalAdd(type, listener, options);
   });
   vi.spyOn(document, 'removeEventListener').mockImplementation((type, listener, options) => {
     if (type === 'keydown' && typeof listener === 'function') removedListeners.push(listener as EventListener);
-    return EventTarget.prototype.removeEventListener.call(document, type, listener, options);
+    originalRemove(type, listener, options);
   });
 });
 
@@ -39,12 +47,13 @@ afterEach(async () => {
 });
 
 function renderLightbox(onClose = vi.fn()) {
-  act(() => root.render(<StrictMode><button type="button">Gallery trigger</button><Lightbox item={galleryItems[0]} onClose={onClose} onPrevious={vi.fn()} onNext={vi.fn()} /></StrictMode>));
+  const item = galleryItems[0]!;
+  act(() => root.render(<StrictMode><button type="button">Gallery trigger</button><Lightbox item={item} onClose={onClose} onPrevious={vi.fn()} onNext={vi.fn()} /></StrictMode>));
   return onClose;
 }
 
 describe('Lightbox Strict Mode lifecycle', () => {
-  it('activates the dialog once after Strict Mode effect replay and removes its key listener once', async () => {
+  it('activates the dialog once after Strict Mode effect replay and removes its key listener', async () => {
     renderLightbox();
     await act(async () => { await Promise.resolve(); });
 
