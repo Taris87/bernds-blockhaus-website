@@ -90,3 +90,32 @@ test('contact page offers phone and e-mail links for every contact person', asyn
     );
   }
 });
+
+test('hidden hero photo is not downloaded on small screens but shown on desktop', async ({
+  page,
+}) => {
+  const heroRequests: string[] = [];
+  page.on('request', (request) => {
+    if (request.url().includes('blockhaus-rosen-lavendel')) {
+      heroRequests.push(request.url());
+    }
+  });
+
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto(`${base}/`);
+  await page.waitForLoadState('networkidle');
+  await expect(page.locator('.hero-photo')).toBeHidden();
+  expect(heroRequests).toEqual([]);
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const heroImage = page.locator('.hero-photo img');
+  await expect(heroImage).toBeVisible();
+  await expect
+    .poll(() =>
+      heroImage.evaluate(
+        (element: HTMLImageElement) =>
+          element.complete && element.naturalWidth > 0,
+      ),
+    )
+    .toBe(true);
+});

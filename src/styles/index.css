@@ -40,6 +40,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .hero { position: relative; min-height: min(760px, 78vw); min-height: clamp(580px, 72vh, 800px); overflow: hidden; background: var(--color-forest); color: white; }
 .hero-image, .hero-shade { position: absolute; inset: 0; }
 .hero-image { background: linear-gradient(120deg, #566b5b, #293c32 65%, #1d2b24); }
+/* Lazy loading keeps the hidden (display: none) hero photo from downloading on small screens. */
 .hero-photo { display: none; }
 .hero-shade { background: linear-gradient(90deg, rgb(20 32 26 / 78%), rgb(20 32 26 / 38%) 58%, rgb(20 32 26 / 8%)); }
 .hero-content { position: relative; z-index: 1; width: min(720px, 85%); padding: clamp(100px, 15vw, 210px) 0 130px 10vw; }

@@ -38,7 +38,7 @@ export function HomePage() {
         <div className="hero-image" aria-hidden="true" />
         <div className="hero-shade" />
         <figure className="hero-photo">
-          <Photo photo={photos.blockhausRosen} eager />
+          <Photo photo={photos.blockhausRosen} />
         </figure>
         <div className="hero-content">
           <p className="eyebrow">{site.heroEyebrow}</p>
