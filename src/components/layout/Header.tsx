@@ -22,18 +22,22 @@ export function Header() {
     // Strict Mode's development replay cancels this first setup before focus moves.
     queueMicrotask(() => {
       if (cancelled) return;
-      const dialog = dialogRef.current;
-      if (!dialog) return;
+      const dialogElement = dialogRef.current;
+      if (!dialogElement) return;
 
-      dialogForCleanup = dialog;
-      if (!dialog.open) dialog.showModal();
+      const activeDialog: HTMLDialogElement = dialogElement;
+      dialogForCleanup = activeDialog;
+      if (!activeDialog.open) activeDialog.showModal();
 
       const closeButton =
-        dialog.querySelector<HTMLButtonElement>('.mobile-menu-close');
+        activeDialog.querySelector<HTMLButtonElement>('.mobile-menu-close');
       closeButton?.focus();
 
       function keepFocusInside(event: FocusEvent) {
-        if (event.target instanceof Node && !dialog.contains(event.target)) {
+        if (
+          event.target instanceof Node &&
+          !activeDialog.contains(event.target)
+        ) {
           closeButton?.focus();
         }
       }
