@@ -48,3 +48,14 @@ Offen vor Produktivbetrieb: Backend-Endpunkt und Empfängerlogik, serverseitige 
 - Unit Tests: 15 deklarierte Tests (7 Header, 8 Formular).
 - Playwright: 15 deklarierte Tests insgesamt. Der reguläre Chromium-Lauf umfasst 14 Tests: 11 Mobile-Dialog-/Viewport-Tests und 3 Navigation-/Fallback-Tests. Der separate Lauf mit `playwright.invalid-endpoint.config.ts` umfasst 1 Test mit ungültigem HTTPS-Endpunkt.
 - Run #14 führte `npm run test:e2e` aus: 14/14 Tests im regulären Chromium-Lauf und 1/1 Test im separaten Lauf mit ungültigem HTTPS-Endpunkt bestanden (15/15 insgesamt). Die Anzahl deklarierter Tests ist nicht gleichbedeutend mit bestandenen Tests; maßgeblich sind die tatsächlich abgeschlossenen CI-Läufe für den jeweiligen Commit.
+
+## QA-043 Navigation auf derselben Route
+
+Festgelegtes Verhalten (`SiteLayout`): Der Fokus wird nur bei einem Wechsel des `pathname` auf `main` gesetzt. Reine Query- oder Hash-Änderungen auf derselben Route lösen keinen Fokus-Sprung und kein Scrollen durch die App aus; Fokus und Scrollposition bleiben erhalten. Die bestehende Logik entsprach diesem Verhalten bereits, es war keine Code-Korrektur nötig.
+
+Hash-Ziele bleiben über die native Fragment-Navigation des Browsers erreichbar: Der Browser scrollt (wegen `scroll-behavior: smooth` weich) zum Ziel und fokussiert es, wenn es fokussierbar ist (z. B. `main` mit `tabindex="-1"` über den Skip-Link). Die App ergänzt dafür keine eigene Logik. Für Hash-Links über React Router (`<Link to="#id">`) gibt es derzeit keine Nutzung; das Scrollverhalten solcher Links ist nicht abgedeckt und müsste bei Einführung eigens geprüft werden.
+
+Abdeckung:
+
+- Unit (`src/components/layout/SiteLayout.test.tsx`, 6 Tests): erster Render, Query, Hash, Query + Hash, pathname-Wechsel, Query gefolgt von pathname-Wechsel.
+- Playwright (`tests/e2e/same-route-navigation.spec.ts`, 6 Tests, Chromium): Query-Änderung über den Router (Fokus und Scrollposition bleiben, kein Reload), native Hash-Navigation (Scroll zum Ziel und Fokus aufs Ziel, kein Reload), Query + Hash über den Router, Skip-Link per Tastatur, pathname-Wechsel über die Hauptnavigation und nach vorheriger Query-Änderung.
