@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { Header } from './Header';
 
@@ -41,6 +42,21 @@ describe('Header mobile navigation', () => {
     ).toHaveFocus();
   });
 
+  it('uses native sequential focus order for Tab and Shift+Tab', async () => {
+    const user = userEvent.setup();
+    renderHeader();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
+    const closeButton = screen.getByRole('button', { name: 'Menü schließen' });
+    const links = screen.getAllByRole('link', { name: /Gaststätte|Ferienwohnungen|Eichwieserhof|Anfragen/ });
+
+    expect(closeButton).toHaveFocus();
+    await user.tab();
+    expect(links[0]).toHaveFocus();
+    await user.tab({ shift: true });
+    expect(closeButton).toHaveFocus();
+  });
+
   it('closes the dialog with Escape and returns focus to the toggle button', () => {
     renderHeader();
 
@@ -49,10 +65,7 @@ describe('Header mobile navigation', () => {
 
     fireEvent(
       screen.getByRole('dialog', { name: 'Mobile Navigation' }),
-      new Event('cancel', {
-        bubbles: false,
-        cancelable: true,
-      }),
+      new Event('cancel', { bubbles: false, cancelable: true }),
     );
 
     expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute(
@@ -84,9 +97,9 @@ describe('Header mobile navigation', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
-    expect(screen.getByRole('dialog', { name: 'Mobile Navigation' })).toHaveAttribute(
-      'open',
-    );
+    expect(
+      screen.getByRole('dialog', { name: 'Mobile Navigation' }),
+    ).toHaveAttribute('open');
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü schließen' }));
     expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute(
@@ -121,9 +134,7 @@ describe('Header mobile navigation', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
 
-    expect(
-      screen.getByRole('navigation', { name: 'Menü' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Menü' })).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toHaveAttribute(
       'aria-label',
       'Mobile Navigation',
