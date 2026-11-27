@@ -93,6 +93,7 @@ async function renderGallery(strict = true) {
 describe('Lightbox Strict Mode lifecycle', () => {
   it('ignores a stale opening microtask after unmount and remount of a new instance', async () => {
     const queuedMicrotasks: VoidFunction[] = [];
+    const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus');
     const originalQueueMicrotask = globalThis.queueMicrotask;
     const queueMicrotaskSpy = vi.spyOn(globalThis, 'queueMicrotask').mockImplementation((callback) => {
       queuedMicrotasks.push(callback);
@@ -141,8 +142,9 @@ describe('Lightbox Strict Mode lifecycle', () => {
 
     expect(showModalCalls).toBe(0);
     expect(container.querySelector('dialog[open]')).toBeNull();
-    expect(document.activeElement).not.toBe(oldTrigger);
-    expect(document.activeElement).not.toBe(newTrigger);
+    const focusCallsAfterStaleTask = focusSpy.mock.contexts.slice();
+    expect(focusCallsAfterStaleTask).not.toContain(oldTrigger);
+    expect(focusCallsAfterStaleTask).not.toContain(newTrigger);
 
     await act(async () => {
       newOpeningTasks.forEach((callback) => callback());
@@ -154,6 +156,7 @@ describe('Lightbox Strict Mode lifecycle', () => {
     expect(document.activeElement).not.toBe(oldTrigger);
 
     queueMicrotaskSpy.mockRestore();
+    focusSpy.mockRestore();
     expect(globalThis.queueMicrotask).toBe(originalQueueMicrotask);
   });
   it('activates the dialog once after Strict Mode effect replay and removes its key listener', async () => {
