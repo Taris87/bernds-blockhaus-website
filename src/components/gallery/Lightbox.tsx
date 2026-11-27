@@ -14,6 +14,7 @@ export function Lightbox({ item, onClose, onPrevious, onNext }: Props) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
   const lifecycle = useRef(0);
+  const restoreFocusOnClose = useRef(false);
   const callbacks = useRef({ onClose, onPrevious, onNext });
 
   useLayoutEffect(() => {
@@ -25,6 +26,7 @@ export function Lightbox({ item, onClose, onPrevious, onNext }: Props) {
     if (!dialog) return;
 
     const token = ++lifecycle.current;
+    restoreFocusOnClose.current = false;
     previousFocus.current =
       document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
@@ -53,19 +55,34 @@ export function Lightbox({ item, onClose, onPrevious, onNext }: Props) {
 
       const cleanupToken = lifecycle.current;
       const focusTarget = previousFocus.current;
-      queueMicrotask(() => {
-        if (lifecycle.current !== cleanupToken) return;
-        previousFocus.current = null;
-        if (focusTarget?.isConnected && document.contains(focusTarget)) {
-          focusTarget.focus();
-        }
-      });
+      const shouldRestoreFocus = restoreFocusOnClose.current;
+      previousFocus.current = null;
+      restoreFocusOnClose.current = false;
+
+      // Only a user-driven close is allowed to restore focus. A parent-driven
+      // unmount (including route changes) must never refocus a stale trigger.
+      if (shouldRestoreFocus) {
+        queueMicrotask(() => {
+          if (
+            lifecycle.current === cleanupToken &&
+            focusTarget?.isConnected &&
+            document.contains(focusTarget)
+          ) {
+            focusTarget.focus();
+          }
+        });
+      }
     };
   }, []);
 
+  function requestClose() {
+    restoreFocusOnClose.current = true;
+    callbacks.current.onClose();
+  }
+
   function handleCancel(event: SyntheticEvent<HTMLDialogElement>) {
     event.preventDefault();
-    callbacks.current.onClose();
+    requestClose();
   }
 
   return (
@@ -75,7 +92,7 @@ export function Lightbox({ item, onClose, onPrevious, onNext }: Props) {
       aria-label={item.title}
       onCancel={handleCancel}
       onClick={(event) => {
-        if (event.target === event.currentTarget) callbacks.current.onClose();
+        if (event.target === event.currentTarget) requestClose();
       }}
     >
       <section className="lightbox-panel" aria-label="Bildansicht">
@@ -83,7 +100,7 @@ export function Lightbox({ item, onClose, onPrevious, onNext }: Props) {
           ref={closeRef}
           className="lightbox-close"
           type="button"
-          onClick={() => callbacks.current.onClose()}
+          onClick={requestClose}
           aria-label="Galerie schließen"
         >
           ×
