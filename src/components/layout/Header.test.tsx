@@ -1,12 +1,12 @@
 import { StrictMode } from 'react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { Header } from './Header';
 
 beforeEach(() => {
-  // JSDOM does not implement the browser's native modal-dialog behavior.
-  // Real Tab/Shift+Tab semantics are verified in Playwright/Chromium.
+  // JSDOM does not implement native modal-dialog keyboard/focus behavior.
+  // Those browser semantics are verified separately in Playwright/Chromium.
   HTMLDialogElement.prototype.showModal = function () {
     this.setAttribute('open', '');
   };
@@ -31,43 +31,50 @@ function renderHeader() {
 }
 
 describe('Header mobile navigation', () => {
-  it('opens the dialog and moves focus to the close button', () => {
+  it('opens the dialog and moves focus to the close button', async () => {
     renderHeader();
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
 
     const dialog = screen.getByRole('dialog', { name: 'Mobile Navigation' });
-    expect(dialog).toHaveAttribute('open');
-    expect(screen.getByRole('button', { name: 'Menü schließen' })).toHaveFocus();
+    await waitFor(() => expect(dialog).toHaveAttribute('open'));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Menü schließen' })).toHaveFocus());
   });
 
-  it('closes the dialog with Escape and returns focus to the toggle button', () => {
+  it('closes the dialog with Escape and returns focus to the toggle button', async () => {
     renderHeader();
 
     const toggle = screen.getByRole('button', { name: 'Menü öffnen' });
     fireEvent.click(toggle);
 
+    const dialog = await screen.findByRole('dialog', { name: 'Mobile Navigation' });
+    await waitFor(() => expect(dialog).toHaveAttribute('open'));
+
     fireEvent(
-      screen.getByRole('dialog', { name: 'Mobile Navigation' }),
+      dialog,
       new Event('cancel', { bubbles: false, cancelable: true }),
     );
 
-    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open');
+    await waitFor(() => expect(dialog).not.toHaveAttribute('open'));
     expect(toggle).toHaveFocus();
   });
 
-  it('closes the dialog and restores focus when the close button is selected', () => {
+  it('closes the dialog and restores focus when the close button is selected', async () => {
     renderHeader();
 
     const toggle = screen.getByRole('button', { name: 'Menü öffnen' });
     fireEvent.click(toggle);
-    fireEvent.click(screen.getByRole('button', { name: 'Menü schließen' }));
+    const closeButton = await screen.findByRole('button', { name: 'Menü schließen' });
+    await waitFor(() => expect(closeButton).toHaveFocus());
+    fireEvent.click(closeButton);
 
-    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open');
+    await waitFor(() =>
+      expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open'),
+    );
     expect(toggle).toHaveFocus();
   });
 
-  it('opens and closes safely under React Strict Mode', () => {
+  it('opens and closes safely under React Strict Mode', async () => {
     render(
       <StrictMode>
         <MemoryRouter>
@@ -76,41 +83,47 @@ describe('Header mobile navigation', () => {
       </StrictMode>,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
-    expect(screen.getByRole('dialog', { name: 'Mobile Navigation' })).toHaveAttribute('open');
+    const toggle = screen.getByRole('button', { name: 'Menü öffnen' });
+    fireEvent.click(toggle);
+    const dialog = await screen.findByRole('dialog', { name: 'Mobile Navigation' });
+    await waitFor(() => expect(dialog).toHaveAttribute('open'));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Menü schließen' })).toHaveFocus());
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü schließen' }));
-    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open');
-    expect(screen.getByRole('button', { name: 'Menü öffnen' })).toHaveFocus();
+    await waitFor(() => expect(dialog).not.toHaveAttribute('open'));
+    expect(toggle).toHaveFocus();
   });
 
-  it('returns focus to the dialog when script-driven focus escapes', () => {
+  it('returns focus to the dialog when script-driven focus escapes', async () => {
     renderHeader();
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
-    const closeButton = screen.getByRole('button', { name: 'Menü schließen' });
+    const closeButton = await screen.findByRole('button', { name: 'Menü schließen' });
+    await waitFor(() => expect(closeButton).toHaveFocus());
     screen.getByTestId('outside-control').focus();
 
-    expect(closeButton).toHaveFocus();
+    await waitFor(() => expect(closeButton).toHaveFocus());
   });
 
-  it('closes the dialog when a navigation link is selected', () => {
+  it('closes the dialog when a navigation link is selected', async () => {
     renderHeader();
 
     const toggle = screen.getByRole('button', { name: 'Menü öffnen' });
     fireEvent.click(toggle);
-    fireEvent.click(screen.getByRole('link', { name: 'Anfragen ↗' }));
+    const link = await screen.findByRole('link', { name: 'Anfragen ↗' });
+    fireEvent.click(link);
 
-    expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open');
+    await waitFor(() =>
+      expect(screen.getByRole('dialog', { hidden: true })).not.toHaveAttribute('open'),
+    );
     expect(toggle).toHaveFocus();
   });
 
-  it('exposes the menu links inside a labelled navigation landmark', () => {
+  it('exposes the menu links inside a labelled navigation landmark', async () => {
     renderHeader();
 
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }));
-
-    expect(screen.getByRole('navigation', { name: 'Menü' })).toBeInTheDocument();
+    expect(await screen.findByRole('navigation', { name: 'Menü' })).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toHaveAttribute('aria-label', 'Mobile Navigation');
   });
 });
