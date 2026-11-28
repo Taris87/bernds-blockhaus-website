@@ -582,18 +582,21 @@ h3 em {
 .print figcaption {
   position: absolute;
   right: 12px;
-  bottom: 7px;
+  bottom: 0;
   left: 12px;
+  /* The whole bottom paper margin; long captions wrap to a second line
+     instead of being cut off with an ellipsis (QA-115). */
+  display: flex;
+  align-items: center;
+  height: 34px;
   overflow: hidden;
   color: var(--color-ink-soft);
   font-family: var(--font-sign);
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.08em;
-  line-height: 1.4;
-  text-overflow: ellipsis;
+  line-height: 1.15;
   text-transform: uppercase;
-  white-space: nowrap;
 }
 .print-tape {
   position: absolute;
@@ -670,12 +673,12 @@ h3 em {
 
 /* Hero / four prints (mobile composition first) */
 .collage-hero {
-  --box: 343 / 470;
+  --box: 343 / 520;
   max-width: 480px;
 }
 .collage-hero .slot-a {
   z-index: 2;
-  top: 14%;
+  top: 12.7%;
   left: 0;
   width: 84.5%;
 }
@@ -687,18 +690,18 @@ h3 em {
 }
 .collage-hero .slot-c {
   z-index: 4;
-  top: 60%;
+  top: 60.5%;
   left: 1%;
   width: 34.4%;
 }
 .collage-hero .slot-d {
   z-index: 3;
-  top: 62%;
+  top: 62.5%;
   right: 2%;
   width: 34.4%;
 }
 .collage-hero .stamp {
-  top: 74%;
+  top: 75%;
   left: 37%;
   width: 92px;
   height: 92px;
@@ -708,7 +711,7 @@ h3 em {
   font-size: 24px;
 }
 .collage-hero .collage-stage {
-  aspect-ratio: 343 / 470;
+  aspect-ratio: 343 / 520;
 }
 
 /* Photo pair of an index row */
@@ -1249,6 +1252,12 @@ h3 em {
 }
 .page-intro-aside {
   min-width: 0;
+}
+.page-intro-gallery h1 {
+  font-size: min(58px, 15.5vw);
+}
+.page-intro-gallery .gallery-count {
+  margin-top: 8px;
 }
 .page-intro-aside > .print {
   margin-inline: auto;
@@ -2307,6 +2316,10 @@ h3 em {
     left: 31.5%;
     width: 61%;
   }
+  .collage-pair-mirrored .slot-a figcaption {
+    justify-content: flex-end;
+    text-align: right;
+  }
   .collage-pair-mirrored .slot-b {
     top: 50%;
     right: auto;
@@ -2703,9 +2716,9 @@ h3 em {
     transform: rotate(clamp(-4deg, var(--tilt), 4deg));
   }
   .print figcaption {
-    bottom: 6px;
     left: 9px;
     right: 9px;
+    height: 30px;
     font-size: 13px;
   }
   .collage .print figcaption {

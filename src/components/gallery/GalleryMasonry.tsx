@@ -1,20 +1,10 @@
-import { Fragment, useEffect, useRef, useState, type CSSProperties } from 'react';
-import { useSearchParams } from 'react-router';
-import {
-  categoryLabel,
-  galleryCategories,
-  galleryItems,
-  isGalleryCategory,
-  type GalleryCategory,
-} from '../../data/gallery';
+import { Fragment, useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
+import { categoryLabel, galleryCategories, galleryItems, type GalleryCategory } from '../../data/gallery';
 import { openingHours } from '../../data/contacts';
 import { microTexts } from '../../data/site';
 import { Lightbox } from './Lightbox';
 import { Photo } from '../ui/Photo';
 import { useGalleryMotion } from '../../motion/useGalleryMotion';
-
-/** Query parameter for the active filter, e.g. `?kategorie=kueche-feiern`. */
-const FILTER_PARAM = 'kategorie';
 
 /** Height of one implicit grid row in px (see `.masonry` in index.css). */
 const ROW_UNIT = 4;
@@ -26,27 +16,6 @@ function estimatedSpan(width: number, height: number) {
 /** Index after which the opening-hours tile is inserted. */
 const NOTE_AFTER = 9;
 
-function useActiveCategory(): [GalleryCategory | null, (next: GalleryCategory | null) => void] {
-  const [params, setParams] = useSearchParams();
-  const value = params.get(FILTER_PARAM) ?? '';
-  const active = isGalleryCategory(value) ? value : null;
-
-  function setActive(next: GalleryCategory | null) {
-    setParams(
-      (current) => {
-        const updated = new URLSearchParams(current);
-        if (next) updated.set(FILTER_PARAM, next);
-        else updated.delete(FILTER_PARAM);
-        return updated;
-      },
-      // Same pathname: useRouteScroll keeps the scroll position (QA-043/QA-107).
-      { replace: true, preventScrollReset: true },
-    );
-  }
-
-  return [active, setActive];
-}
-
 /**
  * Masonry in reading order (pattern M6): CSS grid with 4 px implicit rows,
  * every tile spans as many rows as its measured height needs. Unlike CSS
@@ -56,11 +25,17 @@ function useActiveCategory(): [GalleryCategory | null, (next: GalleryCategory | 
  * filter change uses Flip; `data-flip-id` on the tile button is shared with
  * the lightbox frame for the open/close transition.
  */
-export function GalleryMasonry() {
-  const [category, setCategory] = useActiveCategory();
+interface Props {
+  /** Active filter from the query string (see useGalleryCategory). */
+  category: GalleryCategory | null;
+  onCategoryChange: (next: GalleryCategory | null) => void;
+  /** The photo counter in the page intro (counts to the new number on filter changes). */
+  countRef: RefObject<HTMLElement | null>;
+}
+
+export function GalleryMasonry({ category, onCategoryChange: setCategory, countRef }: Props) {
   const [active, setActive] = useState<number | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
-  const countRef = useRef<HTMLElement>(null);
   const motion = useGalleryMotion(listRef, countRef, category);
 
   const items = category ? galleryItems.filter((item) => item.category === category) : galleryItems;
@@ -94,7 +69,23 @@ export function GalleryMasonry() {
     };
   }, [category]);
 
+  /**
+   * A short filter result must not make the page so short that the browser
+   * clamps the scroll position (QA-043): the section keeps exactly the height
+   * the current scroll position needs, nothing more.
+   */
+  function keepScrollPosition() {
+    const section = listRef.current?.closest<HTMLElement>('.gallery-section');
+    if (!section) return;
+    const root = document.documentElement;
+    const outside = root.scrollHeight - section.offsetHeight;
+    const needed = Math.ceil(window.scrollY + window.innerHeight - outside);
+    if (needed > 0) section.style.minHeight = `${needed}px`;
+    else section.style.removeProperty('min-height');
+  }
+
   function select(next: GalleryCategory | null) {
+    keepScrollPosition();
     if (next !== category) motion.beforeFilter();
     setActive(null);
     setCategory(next);
@@ -132,12 +123,6 @@ export function GalleryMasonry() {
         </div>
       </div>
       <div className="wrap">
-        <p className="gallery-count" aria-live="polite">
-          <b ref={countRef} data-counter={items.length}>
-            {items.length}
-          </b> Fotos
-          {category && <span className="sr-only"> in {categoryLabel(category)}</span>}
-        </p>
         <ul className="masonry" ref={listRef} data-reveal="stagger">
           {items.map((item, index) => (
             <Fragment key={item.id}>
