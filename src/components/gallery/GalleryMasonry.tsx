@@ -11,6 +11,7 @@ import { openingHours } from '../../data/contacts';
 import { microTexts } from '../../data/site';
 import { Lightbox } from './Lightbox';
 import { Photo } from '../ui/Photo';
+import { useGalleryMotion } from '../../motion/useGalleryMotion';
 
 /** Query parameter for the active filter, e.g. `?kategorie=kueche-feiern`. */
 const FILTER_PARAM = 'kategorie';
@@ -51,13 +52,16 @@ function useActiveCategory(): [GalleryCategory | null, (next: GalleryCategory | 
  * every tile spans as many rows as its measured height needs. Unlike CSS
  * columns, DOM order, tab order and visual order stay row-wise.
  *
- * Motion hooks: tiles carry `data-reveal="tile"` and `data-flip-id`
- * (shared with the lightbox image for the FLIP transition).
+ * Motion (useGalleryMotion): tiles fade up once (`data-reveal="tile"`), a
+ * filter change uses Flip; `data-flip-id` on the tile button is shared with
+ * the lightbox frame for the open/close transition.
  */
 export function GalleryMasonry() {
   const [category, setCategory] = useActiveCategory();
   const [active, setActive] = useState<number | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const countRef = useRef<HTMLElement>(null);
+  const motion = useGalleryMotion(listRef, countRef, category);
 
   const items = category ? galleryItems.filter((item) => item.category === category) : galleryItems;
   const activeItem = active === null ? undefined : items[active];
@@ -91,6 +95,7 @@ export function GalleryMasonry() {
   }, [category]);
 
   function select(next: GalleryCategory | null) {
+    if (next !== category) motion.beforeFilter();
     setActive(null);
     setCategory(next);
   }
@@ -128,7 +133,9 @@ export function GalleryMasonry() {
       </div>
       <div className="wrap">
         <p className="gallery-count" aria-live="polite">
-          <b data-counter={items.length}>{items.length}</b> Fotos
+          <b ref={countRef} data-counter={items.length}>
+            {items.length}
+          </b> Fotos
           {category && <span className="sr-only"> in {categoryLabel(category)}</span>}
         </p>
         <ul className="masonry" ref={listRef} data-reveal="stagger">

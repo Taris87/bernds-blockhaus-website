@@ -1,4 +1,6 @@
+import { useEffect, useRef } from 'react';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { useSectionSpy } from '../motion/useSectionSpy';
 import { PageIntro } from './PageIntro';
 import { photos } from '../data/photos';
 import { beefOrderPhone, getContact, phoneHref } from '../data/contacts';
@@ -26,6 +28,7 @@ const sections = [
 ];
 
 const saleTilts = [-2, 1.5, -1, 2, -1.5, 1];
+const sectionIds = sections.map((section) => section.id);
 
 export function EichwieserhofPage() {
   usePageMeta(
@@ -33,6 +36,19 @@ export function EichwieserhofPage() {
     'Eichwieserhof in Weilerbach: Islandpferdezucht „Isländer vom Eichwieserhof“, Deckhengste, Verkaufspferde, Anguszucht und Rindfleisch auf Vorbestellung.',
   );
   const horseContact = getContact('islandpferde');
+  const activeSection = useSectionSpy(sectionIds);
+  const signsRef = useRef<HTMLDivElement>(null);
+
+  // Mobile: keep the active sign visible inside the horizontally scrolling bar
+  // (scrolls the bar only, never the page).
+  useEffect(() => {
+    const bar = signsRef.current;
+    const sign = activeSection ? bar?.querySelector<HTMLElement>(`[data-section-link="${activeSection}"]`) : null;
+    if (!bar || !sign || bar.scrollWidth <= bar.clientWidth) return;
+    const offset = sign.getBoundingClientRect().left - bar.getBoundingClientRect().left;
+    bar.scrollLeft += offset - (bar.clientWidth - sign.offsetWidth) / 2;
+  }, [activeSection]);
+
   return (
     <>
       <PageIntro
@@ -51,9 +67,15 @@ export function EichwieserhofPage() {
       </PageIntro>
 
       <nav className="section-signs" aria-label="Abschnitte dieser Seite" data-section-nav>
-        <div className="wrap section-signs-inner">
+        <div className="wrap section-signs-inner" ref={signsRef}>
           {sections.map((section) => (
-            <a key={section.id} className="section-sign" href={`#${section.id}`} data-section-link={section.id}>
+            <a
+              key={section.id}
+              className="section-sign"
+              href={`#${section.id}`}
+              data-section-link={section.id}
+              aria-current={activeSection === section.id ? 'true' : undefined}
+            >
               {section.label}
             </a>
           ))}

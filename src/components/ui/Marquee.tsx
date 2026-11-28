@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useMarqueeMotion } from '../../motion/useMarqueeMotion';
 import { OakLeaf } from './Ornaments';
 
 interface Props {
@@ -8,15 +9,17 @@ interface Props {
 }
 
 /**
- * Ticker (Kap. 6 `Marquee`). This component only provides structure and
- * state; the movement is added by the motion layer, which must respect
- * `data-paused` (pause button, WCAG 2.2.2), hover/focus and reduced motion.
+ * Ticker (Kap. 6 `Marquee`): structure and pause state here, the loop in
+ * `useMarqueeMotion` (pause button, WCAG 2.2.2, hover/focus, viewport and
+ * reduced motion).
  *
  * The facts are read once from the list; the second copy that makes the
  * loop seamless is hidden from assistive technology.
  */
 export function Marquee({ items, pauseLabel }: Props) {
   const [paused, setPaused] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  useMarqueeMotion(root, paused);
 
   function renderList(copy: boolean) {
     return (
@@ -32,7 +35,7 @@ export function Marquee({ items, pauseLabel }: Props) {
   }
 
   return (
-    <div className="marquee" data-marquee data-paused={paused ? 'true' : 'false'}>
+    <div ref={root} className="marquee" data-marquee data-paused={paused ? 'true' : 'false'}>
       <div className="marquee-viewport">
         <div className="marquee-track" data-marquee-track>
           {renderList(false)}
