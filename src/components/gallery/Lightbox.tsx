@@ -1,4 +1,12 @@
-import { useEffect, useLayoutEffect, useRef, type CSSProperties, type MouseEvent, type SyntheticEvent } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  type CSSProperties,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent,
+  type SyntheticEvent,
+} from 'react';
 import type { Photo as PhotoData } from '../../types/content';
 import { Photo } from '../ui/Photo';
 import { useGSAP } from '../../motion/gsap';
@@ -121,12 +129,25 @@ export function Lightbox({ items, index, onSelect, onClose, onPrevious, onNext }
   }, []);
 
   // Keep the current thumbnail visible inside the strip (no page scroll).
+  // Roving tabindex (QA-113): if focus is in the strip, it follows the photo.
   useEffect(() => {
     const film = filmRef.current;
     const thumb = film?.querySelector<HTMLElement>('[aria-current="true"]');
     if (!film || !thumb) return;
     film.scrollLeft = thumb.offsetLeft - (film.clientWidth - thumb.offsetWidth) / 2;
+    if (film.contains(document.activeElement) && document.activeElement !== thumb) {
+      thumb.focus({ preventScroll: true });
+    }
   }, [index]);
+
+  // The strip is one tab stop; ← → (handled for the whole dialog) switch the
+  // photo, Home/End jump to the first/last one.
+  function handleFilmKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+    if (event.altKey || event.ctrlKey || event.metaKey || closing.current) return;
+    if (event.key !== 'Home' && event.key !== 'End') return;
+    event.preventDefault();
+    onSelect(event.key === 'Home' ? 0 : items.length - 1);
+  }
 
   // Slide the new photo in from the side it came from (not on mount).
   useGSAP(
@@ -227,7 +248,14 @@ export function Lightbox({ items, index, onSelect, onClose, onPrevious, onNext }
             </figcaption>
           </figure>
         </div>
-        <div className="lightbox-film" ref={filmRef} data-lightbox-film>
+        <div
+          className="lightbox-film"
+          ref={filmRef}
+          role="group"
+          aria-label="Miniaturen – Pfeiltasten wechseln das Foto"
+          onKeyDown={handleFilmKeyDown}
+          data-lightbox-film
+        >
           {items.map((entry, entryIndex) => (
             <button
               key={entry.id}
@@ -235,6 +263,7 @@ export function Lightbox({ items, index, onSelect, onClose, onPrevious, onNext }
               className="lightbox-thumb"
               aria-label={`Foto ${entryIndex + 1}: ${entry.title}`}
               aria-current={entryIndex === index ? 'true' : undefined}
+              tabIndex={entryIndex === index ? 0 : -1}
               onClick={() => onSelect(entryIndex)}
             >
               <Photo photo={entry.photo} />

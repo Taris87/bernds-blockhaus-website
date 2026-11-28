@@ -201,6 +201,41 @@ test.describe('native gallery lightbox', () => {
     expect(await originalElement?.evaluate((element) => element.isConnected)).toBe(false);
   });
 
+  test('thumbnail strip is a single tab stop with arrow, Home and End keys (QA-113)', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto(`${base}/galerie`);
+    await page.getByRole('button', { name: /groß anzeigen/i }).first().click();
+    const dialog = page.getByRole('dialog');
+    await expect(page.getByRole('button', { name: 'Galerie schließen' })).toBeFocused();
+    await expect(dialog.locator('.lightbox-thumb')).toHaveCount(39);
+    await expect(dialog.locator('.lightbox-thumb[tabindex="0"]')).toHaveCount(1);
+
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('button', { name: 'Zurück' })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('button', { name: 'Weiter' })).toBeFocused();
+    await page.keyboard.press('Tab');
+    const thumbs = dialog.locator('.lightbox-thumb');
+    await expect(thumbs.nth(0)).toBeFocused();
+
+    await page.keyboard.press('ArrowRight');
+    await expect(dialog.locator('.lightbox-counter')).toContainText('02 / 39');
+    await expect(thumbs.nth(1)).toBeFocused();
+    await expect(thumbs.nth(1)).toHaveAttribute('tabindex', '0');
+    await expect(thumbs.nth(0)).toHaveAttribute('tabindex', '-1');
+
+    await page.keyboard.press('End');
+    await expect(dialog.locator('.lightbox-counter')).toContainText('39 / 39');
+    await expect(thumbs.nth(38)).toBeFocused();
+    await page.keyboard.press('Home');
+    await expect(dialog.locator('.lightbox-counter')).toContainText('01 / 39');
+    await expect(thumbs.nth(0)).toBeFocused();
+
+    // One more Tab leaves the strip instead of walking through 39 thumbnails.
+    await page.keyboard.press('Tab');
+    expect(await page.evaluate(() => document.activeElement?.classList.contains('lightbox-thumb'))).toBe(false);
+  });
+
   test('closes when the backdrop is activated', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(`${base}/galerie`);
