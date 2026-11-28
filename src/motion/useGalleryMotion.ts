@@ -33,7 +33,12 @@ export function useGalleryMotion(
       if (!conditions.motion || !root) return;
       const tiles = [...root.querySelectorAll<HTMLElement>(`${TILE}[data-reveal="tile"]`)];
       tiles.forEach((tile) => pendingTiles.current.add(tile));
-      gsap.set(tiles, { opacity: 0, y: 30 });
+      // Tiles already on screen at load only fade (they belong to the page
+      // entry and must not move under a first click); later ones also rise.
+      const fold = window.innerHeight;
+      const rising = new Set(tiles.filter((tile) => tile.getBoundingClientRect().top > fold));
+      gsap.set(tiles, { opacity: 0 });
+      gsap.set([...rising], { y: 30 });
       triggers.current = ScrollTrigger.batch(tiles, {
         start: 'top 92%',
         // No `once`: it breaks ScrollTrigger's refresh when restored deep in the page (see reveals.ts).

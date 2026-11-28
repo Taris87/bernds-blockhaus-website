@@ -48,18 +48,16 @@ export function openLightbox(dialog: HTMLElement, id: string) {
     );
   }
   if (chrome.length) {
-    timeline.fromTo(
-      chrome,
-      { opacity: 0, y: 12 },
-      { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out', stagger: 0.05, clearProps: CLEAR },
-      0.2,
-    );
+    // Opacity only: the controls are usable (and focused) from the first frame
+    // and never move under the pointer or a click.
+    timeline.fromTo(chrome, { opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'power1.out', clearProps: CLEAR }, 0.15);
   }
   return timeline;
 }
 
 /**
- * Lightbox closing: the photo flies back onto its tile (if visible), the
+ * Lightbox closing (≈ 0.35 s, deliberately quicker than the opening so the
+ * page is back right away): the photo flies back onto its tile (if visible), the
  * surface fades out; `done` then unmounts the dialog, whose cleanup returns
  * focus exactly as before. Without motion `done` runs immediately.
  */
@@ -70,16 +68,16 @@ export function closeLightbox(dialog: HTMLElement, id: string, done: () => void)
   }
   const { scrim, frame, chrome } = parts(dialog);
   const timeline = gsap.timeline({ onComplete: done });
-  if (chrome.length) timeline.to(chrome, { opacity: 0, duration: 0.15, ease: 'power1.in' }, 0);
+  if (chrome.length) timeline.to(chrome, { opacity: 0, duration: 0.12, ease: 'power1.in' }, 0);
   const tile = isMobile() ? null : visibleTile(dialog, id);
   if (frame && tile) {
-    const fit = Flip.fit(frame, tile, { duration: 0.45, ease: 'power3.inOut', scale: true });
+    const fit = Flip.fit(frame, tile, { duration: 0.32, ease: 'power3.inOut', scale: true });
     if (fit && typeof fit !== 'boolean' && 'duration' in fit) timeline.add(fit as gsap.core.Tween, 0);
-    timeline.to(frame, { opacity: 0, duration: 0.1 }, 0.4);
+    timeline.to(frame, { opacity: 0, duration: 0.06 }, 0.28);
   } else if (frame) {
-    timeline.to(frame, { opacity: 0, scale: 0.96, duration: 0.25, ease: 'power2.in' }, 0);
+    timeline.to(frame, { opacity: 0, scale: 0.96, duration: 0.22, ease: 'power2.in' }, 0);
   }
-  if (scrim) timeline.to(scrim, { opacity: 0, duration: 0.3, ease: 'power1.in' }, 0.15);
+  if (scrim) timeline.to(scrim, { opacity: 0, duration: 0.24, ease: 'power1.in' }, 0.1);
   return timeline;
 }
 
