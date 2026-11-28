@@ -1,6 +1,6 @@
 import { useRef, type RefObject } from 'react';
 import { countUp } from './counter';
-import { Flip, gsap, ScrollTrigger, useGSAP } from './gsap';
+import { Flip, gsap, reachableStart, ScrollTrigger, useGSAP } from './gsap';
 import { isMobile, motionAllowed } from './media';
 import { settleShown } from './reveals';
 import { useMotion } from './useMotion';
@@ -48,8 +48,8 @@ export function useGalleryMotion(
       gsap.set(tiles, { opacity: 0 });
       gsap.set([...rising], { y: 30 });
       triggers.current = ScrollTrigger.batch(tiles, {
-        // clamp(): the last tiles at the page end still reach their start line.
-        start: 'clamp(top 92%)',
+        // Reachable at the page end (QA-111), active at once on screen (QA-119).
+        start: reachableStart(0.92),
         // No `once`: it breaks ScrollTrigger's refresh when restored deep in the page (see reveals.ts).
         onEnter: (entered) => {
           const batch = entered.filter((tile) => pendingTiles.current.has(tile));

@@ -35,3 +35,25 @@ export function remeasureScrollTriggers() {
   ScrollTrigger.getAll().forEach((trigger) => trigger.refresh());
   ScrollTrigger.update();
 }
+
+/**
+ * Start line for a one-time reveal: “element top at `fraction` of the
+ * viewport height”, but never beyond the last scroll position, so elements at
+ * the end of the page still trigger (QA-111).
+ *
+ * Not `clamp(top 85%)`: clamp also lifts negative starts to 0, and a trigger
+ * that starts at exactly 0 is not active at scrollY 0 – everything in the
+ * first viewport stayed hidden until the first scroll (QA-119).
+ * Elements already (partly) on screen when the trigger is measured start
+ * right away – nothing visible waits for a scroll.
+ */
+export function reachableStart(fraction: number) {
+  return (self: ScrollTrigger) => {
+    const element = self.trigger;
+    if (!element) return 0;
+    const top = element.getBoundingClientRect().top;
+    const raw = top + window.scrollY - window.innerHeight * fraction;
+    const onScreen = top < window.innerHeight;
+    return Math.min(raw, ScrollTrigger.maxScroll(window) - 1, onScreen ? window.scrollY - 1 : Infinity);
+  };
+}

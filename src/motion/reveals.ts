@@ -1,5 +1,5 @@
 import { countUp, stopCounter } from './counter';
-import { gsap, remeasureScrollTriggers, ScrollTrigger, SplitText } from './gsap';
+import { gsap, reachableStart, remeasureScrollTriggers, ScrollTrigger, SplitText } from './gsap';
 import type { MotionConditions } from './media';
 
 /*
@@ -52,12 +52,17 @@ export function accessibleText(element: HTMLElement) {
  * toggleActions ('play none none none') never reverse, so the reveal still
  * plays exactly once; the triggers die with the context revert.
  */
+/** "top 85%" → 0.85 (fraction of the viewport height for reachableStart). */
+function fractionOf(start: string) {
+  const match = /top (\d+)%/.exec(start);
+  return match ? Number(match[1]) / 100 : 0.85;
+}
+
 function enter(trigger: Element, start: string, members: Element[] = []) {
   return {
     trigger,
-    // clamp(): elements near the end of the page that can never reach the
-    // start line still trigger (otherwise they would stay hidden for good).
-    start: `clamp(${start})`,
+    // Reachable at the page end (QA-111), active at once in the first viewport (QA-119).
+    start: reachableStart(fractionOf(start)),
     onEnter: () => {
       revealed.add(trigger);
       members.forEach((member) => revealed.add(member));
@@ -134,7 +139,8 @@ function splitLines(element: HTMLElement, build: (lines: Element[], done: () => 
   // Soft hyphens (e.g. “Ferien&shy;wohnungen”) cannot break inside split words: fade instead.
   if ((element.textContent ?? '').includes(SOFT_HYPHEN)) return null;
   const label = accessibleText(element);
-  gsap.set(element, { opacity: 1 });
+  // Undo hideUntilSplit without leaving an inline opacity behind.
+  gsap.set(element, { clearProps: 'opacity,visibility' });
   const split = SplitText.create(element, {
     type: 'lines',
     mask: 'lines',
@@ -221,7 +227,7 @@ function clipBatch(elements: HTMLElement[], c: MotionConditions) {
   gsap.set(elements, { clipPath: 'inset(0% 0% 100% 0%)' });
   gsap.set(images, { scale: 1.12 });
   ScrollTrigger.batch(elements, {
-    start: 'clamp(top 85%)',
+    start: reachableStart(0.85),
     onEnter: (entered) => {
       // No `once` (see enter()); elements that already played are skipped.
       const batch = entered.filter((element) => !revealed.has(element));
