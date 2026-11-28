@@ -52,15 +52,35 @@ export function accessibleText(element: HTMLElement) {
  * toggleActions ('play none none none') never reverse, so the reveal still
  * plays exactly once; the triggers die with the context revert.
  */
-function enter(trigger: Element, start: string) {
+function enter(trigger: Element, start: string, members: Element[] = []) {
   return {
     trigger,
-    start,
+    // clamp(): elements near the end of the page that can never reach the
+    // start line still trigger (otherwise they would stay hidden for good).
+    start: `clamp(${start})`,
     onEnter: () => {
       revealed.add(trigger);
+      members.forEach((member) => revealed.add(member));
     },
   };
 }
+
+/** Inline props the motion layer may leave on an element. */
+export const MOTION_PROPS = 'opacity,visibility,transform,translate,rotate,scale,clipPath,transition';
+
+/**
+ * After a matchMedia revert (breakpoint change) the rebuilt context must not
+ * inherit any half state: everything that was already shown gets its motion
+ * props cleared – outside the context, so the next revert cannot bring a
+ * stale value back (QA-111).
+ */
+export function settleShown(context: gsap.Context, elements: Element[]) {
+  if (!elements.length) return;
+  context.ignore(() => gsap.set(elements, { clearProps: MOTION_PROPS }));
+}
+
+/** Everything that may carry a reveal start state. */
+const MOTION_TARGETS = '[data-reveal], [data-counter], [data-parallax], .print, [data-reveal="clip"] img';
 
 function pending<T extends Element>(elements: Iterable<T>, skip: Set<Element>) {
   return [...elements].filter((element) => !revealed.has(element) && !skip.has(element));
@@ -201,7 +221,7 @@ function clipBatch(elements: HTMLElement[], c: MotionConditions) {
   gsap.set(elements, { clipPath: 'inset(0% 0% 100% 0%)' });
   gsap.set(images, { scale: 1.12 });
   ScrollTrigger.batch(elements, {
-    start: 'top 85%',
+    start: 'clamp(top 85%)',
     onEnter: (entered) => {
       // No `once` (see enter()); elements that already played are skipped.
       const batch = entered.filter((element) => !revealed.has(element));
@@ -333,6 +353,15 @@ export function setupPageMotion(root: HTMLElement, c: MotionConditions, context:
   const skip = new Set<Element>();
 
   const hero = root.querySelector<HTMLElement>('.hero');
+  settleShown(
+    context,
+    [...root.querySelectorAll(MOTION_TARGETS)].filter(
+      (element) =>
+        revealed.has(element) ||
+        revealed.has(element.parentElement?.closest('[data-reveal="clip"]') ?? element) ||
+        (heroPlayed && !!hero?.contains(element)),
+    ),
+  );
   if (hero) {
     hero.querySelectorAll('[data-reveal]').forEach((element) => skip.add(element));
     if (!heroPlayed) heroIntro(hero, c, context, isAlive);
@@ -347,7 +376,7 @@ export function setupPageMotion(root: HTMLElement, c: MotionConditions, context:
     if (!prints.length && !stamp) return;
     prints.forEach((element) => skip.add(element));
     if (stamp) skip.add(stamp);
-    const timeline = gsap.timeline({ scrollTrigger: enter(group, 'top 80%') });
+    const timeline = gsap.timeline({ scrollTrigger: enter(group, 'top 80%', stamp ? [...prints, stamp] : prints) });
     pinTweens(timeline, prints, 0, c.mobile ? 0.1 : 0.14, {
       y: c.mobile ? 24 : 40,
       swing: null,

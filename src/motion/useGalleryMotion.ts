@@ -2,6 +2,7 @@ import { useRef, type RefObject } from 'react';
 import { countUp } from './counter';
 import { Flip, gsap, ScrollTrigger, useGSAP } from './gsap';
 import { isMobile, motionAllowed } from './media';
+import { settleShown } from './reveals';
 import { useMotion } from './useMotion';
 
 const TILE = '.masonry-tile';
@@ -23,15 +24,22 @@ export function useGalleryMotion(
   category: string | null,
 ) {
   const pendingTiles = useRef(new Set<Element>());
+  /** Tiles that already faded in – a rebuild (breakpoint change) keeps them static. */
+  const shownTiles = useRef(new WeakSet<Element>());
   const triggers = useRef<ScrollTrigger[]>([]);
   const flipState = useRef<Flip.FlipState | null>(null);
   const previous = useRef({ category, count: -1 });
 
   useMotion(
-    (conditions) => {
+    (conditions, context) => {
       const root = list.current;
       if (!conditions.motion || !root) return;
-      const tiles = [...root.querySelectorAll<HTMLElement>(`${TILE}[data-reveal="tile"]`)];
+      const all = [...root.querySelectorAll<HTMLElement>(`${TILE}[data-reveal="tile"]`)];
+      settleShown(
+        context,
+        all.filter((tile) => shownTiles.current.has(tile)),
+      );
+      const tiles = all.filter((tile) => !shownTiles.current.has(tile));
       tiles.forEach((tile) => pendingTiles.current.add(tile));
       // Tiles already on screen at load only fade (they belong to the page
       // entry and must not move under a first click); later ones also rise.
@@ -40,12 +48,16 @@ export function useGalleryMotion(
       gsap.set(tiles, { opacity: 0 });
       gsap.set([...rising], { y: 30 });
       triggers.current = ScrollTrigger.batch(tiles, {
-        start: 'top 92%',
+        // clamp(): the last tiles at the page end still reach their start line.
+        start: 'clamp(top 92%)',
         // No `once`: it breaks ScrollTrigger's refresh when restored deep in the page (see reveals.ts).
         onEnter: (entered) => {
           const batch = entered.filter((tile) => pendingTiles.current.has(tile));
           if (!batch.length) return;
-          batch.forEach((tile) => pendingTiles.current.delete(tile));
+          batch.forEach((tile) => {
+            pendingTiles.current.delete(tile);
+            shownTiles.current.add(tile);
+          });
           gsap.to(batch, {
             opacity: 1,
             y: 0,
@@ -79,8 +91,10 @@ export function useGalleryMotion(
       triggers.current = [];
       if (pendingTiles.current.size) {
         gsap.set([...pendingTiles.current], { clearProps: CLEAR });
+        pendingTiles.current.forEach((tile) => shownTiles.current.add(tile));
         pendingTiles.current.clear();
       }
+      items.forEach((tile) => shownTiles.current.add(tile));
 
       const state = flipState.current;
       flipState.current = null;
