@@ -251,3 +251,15 @@ test('content stays visible without motion (reduced motion)', async ({
     expect(opacity, selector).toBe('1');
   }
 });
+
+test('footer links meet the 24px minimum target size (QA-117)', async ({ page }) => {
+  for (const width of [375, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`${base}/`);
+    const heights = await page
+      .locator('footer a')
+      .evaluateAll((links) => links.map((link) => [link.textContent?.trim(), link.getBoundingClientRect().height] as const));
+    expect(heights.length).toBeGreaterThan(5);
+    for (const [name, height] of heights) expect(height, `${name} at ${width}px`).toBeGreaterThanOrEqual(24);
+  }
+});

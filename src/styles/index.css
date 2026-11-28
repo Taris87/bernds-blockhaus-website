@@ -513,6 +513,13 @@ h3 em {
   font-size: 15px;
   overflow-wrap: anywhere;
 }
+/* Target size (WCAG 2.5.8, QA-117): every footer link is at least 24 px high. */
+.footer-links a,
+.footer-legal a {
+  display: inline-block;
+  min-height: 24px;
+  padding-block: 2px;
+}
 .footer-links a:hover {
   color: var(--color-ivory);
   text-decoration: underline;
