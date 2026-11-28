@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#263C32" />
     <meta name="description" content="Bernd’s Blockhaus – Gaststätte, Ferienwohnungen und Eichwieserhof. Informationen und Anfragen." />
+    <!-- Hero fonts (Fraunces display, DM Sans body): fetched before the CSS asks for them, less layout shift. Vite rewrites the paths to the hashed build files. -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/node_modules/@fontsource-variable/fraunces/files/fraunces-latin-standard-normal.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/node_modules/@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2" />
     <title>Bernd’s Blockhaus | Gaststätte · Ferienwohnungen · Eichwieserhof</title>
   </head>
   <body>

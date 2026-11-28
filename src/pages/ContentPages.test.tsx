@@ -99,13 +99,17 @@ describe('content taken over from the former website', () => {
     const big = screen.getByRole('article', {
       name: 'Große Ferienwohnung (Süd)',
     });
-    expect(within(big).getByText('60 qm · bis zu 5 Betten')).toBeVisible();
+    // Size is shown as counter (number + unit), beds as separate fact.
+    expect(within(big).getByText('60')).toBeVisible();
+    expect(within(big).getByText('qm')).toBeVisible();
+    expect(within(big).getByText('bis zu 5 Betten')).toBeVisible();
     expect(within(big).getByText('85,- € pro Nacht')).toBeVisible();
     expect(within(big).getByText('15,- € pro Nacht')).toBeVisible();
     const small = screen.getByRole('article', {
       name: 'Kleine Ferienwohnung (Nord)',
     });
-    expect(within(small).getByText('30 qm · bis zu 2 Betten')).toBeVisible();
+    expect(within(small).getByText('30')).toBeVisible();
+    expect(within(small).getByText('bis zu 2 Betten')).toBeVisible();
     expect(within(small).getByText('70,- € pro Nacht')).toBeVisible();
   });
 

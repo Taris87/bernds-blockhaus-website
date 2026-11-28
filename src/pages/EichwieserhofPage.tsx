@@ -1,6 +1,7 @@
+import { useEffect, useRef } from 'react';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { useSectionSpy } from '../motion/useSectionSpy';
 import { PageIntro } from './PageIntro';
-import { Photo } from '../components/ui/Photo';
 import { photos } from '../data/photos';
 import { beefOrderPhone, getContact, phoneHref } from '../data/contacts';
 import {
@@ -12,6 +13,11 @@ import {
   saleHorsesAsOf,
   stallions,
 } from '../data/eichwieserhof';
+import { Collage } from '../components/ui/Collage';
+import { PhotoPrint } from '../components/ui/PhotoPrint';
+import { PanoramaBand } from '../components/ui/PanoramaBand';
+import { OakLeaf } from '../components/ui/Ornaments';
+import { Sign } from '../components/ui/Sign';
 
 const sections = [
   { id: 'islandpferde', label: 'Islandpferde' },
@@ -21,12 +27,8 @@ const sections = [
   { id: 'rindfleisch', label: 'Rindfleisch bestellen' },
 ];
 
-const horsePhotos = [
-  photos.islaenderWiese,
-  photos.islaenderSonnenblume,
-  photos.islaenderAuge,
-  photos.islaenderSonnenblumenfeld,
-];
+const saleTilts = [-2, 1.5, -1, 2, -1.5, 1];
+const sectionIds = sections.map((section) => section.id);
 
 export function EichwieserhofPage() {
   usePageMeta(
@@ -34,6 +36,19 @@ export function EichwieserhofPage() {
     'Eichwieserhof in Weilerbach: Islandpferdezucht „Isländer vom Eichwieserhof“, Deckhengste, Verkaufspferde, Anguszucht und Rindfleisch auf Vorbestellung.',
   );
   const horseContact = getContact('islandpferde');
+  const activeSection = useSectionSpy(sectionIds);
+  const signsRef = useRef<HTMLDivElement>(null);
+
+  // Mobile: keep the active sign visible inside the horizontally scrolling bar
+  // (scrolls the bar only, never the page).
+  useEffect(() => {
+    const bar = signsRef.current;
+    const sign = activeSection ? bar?.querySelector<HTMLElement>(`[data-section-link="${activeSection}"]`) : null;
+    if (!bar || !sign || bar.scrollWidth <= bar.clientWidth) return;
+    const offset = sign.getBoundingClientRect().left - bar.getBoundingClientRect().left;
+    bar.scrollLeft += offset - (bar.clientWidth - sign.offsetWidth) / 2;
+  }, [activeSection]);
+
   return (
     <>
       <PageIntro
@@ -46,95 +61,107 @@ export function EichwieserhofPage() {
           </>
         }
         copy={eichwieserhofSummary}
-      />
-      <section className="content-section section-wrap two-column">
-        <div>
-          <h2>
-            Der <em>Eichwieserhof.</em>
-          </h2>
-          <p>[PLATZHALTER: Hofgeschichte und Besuchsmöglichkeiten]</p>
-          <nav className="section-nav" aria-label="Abschnitte dieser Seite">
-            {sections.map((section) => (
-              <a key={section.id} href={`#${section.id}`}>
-                {section.label}
-              </a>
-            ))}
-          </nav>
-        </div>
-        <figure className="framed-photo">
-          <Photo photo={photos.eichwieserhof} />
-        </figure>
-      </section>
-
-      <section
-        id="islandpferde"
-        className="farm-section farm-section-tinted"
-        tabIndex={-1}
+        aside={<PhotoPrint photo={photos.eichwieserhof} caption="Eichwieserhof" tilt={2} tape eager />}
       >
-        <div className="section-wrap">
-          <p className="eyebrow">Islandpferdezucht</p>
-          <h2>
-            Isländer vom <em>Eichwieserhof.</em>
-          </h2>
-          <p className="farm-lead">
-            Anfragen gerne per E-Mail:{' '}
-            <a href={`mailto:${horseContact.email}`}>{horseContact.email}</a>{' '}
-            oder unter{' '}
-            <a href={phoneHref(horseContact.phone)}>{horseContact.phone}</a> (
-            {horseContact.name})
-          </p>
-          <div className="photo-row">
-            {horsePhotos.map((photo) => (
-              <Photo key={photo.src} photo={photo} className="photo-cover" />
-            ))}
+        <p className="placeholder-note">[PLATZHALTER: Hofgeschichte und Besuchsmöglichkeiten]</p>
+      </PageIntro>
+
+      <nav className="section-signs" aria-label="Abschnitte dieser Seite" data-section-nav>
+        <div className="wrap section-signs-inner" ref={signsRef}>
+          {sections.map((section) => (
+            <a
+              key={section.id}
+              className="section-sign"
+              href={`#${section.id}`}
+              data-section-link={section.id}
+              aria-current={activeSection === section.id ? 'true' : undefined}
+            >
+              {section.label}
+            </a>
+          ))}
+        </div>
+      </nav>
+
+      <section id="islandpferde" className="section farm-section" aria-labelledby="islandpferde-titel" tabIndex={-1}>
+        <div className="wrap farm-split">
+          <div>
+            <p className="label">Islandpferdezucht</p>
+            <h2 id="islandpferde-titel" className="section-title" data-reveal="text">
+              Isländer vom <em>Eichwieserhof.</em>
+            </h2>
+            <div className="business-card" data-reveal="pin">
+              <p className="business-card-name">{horseContact.name}</p>
+              <p>{horseContact.responsibility}</p>
+              <p>
+                <a href={`mailto:${horseContact.email}`}>{horseContact.email}</a>
+              </p>
+              <p>
+                <a href={phoneHref(horseContact.phone)}>{horseContact.phone}</a>
+              </p>
+            </div>
           </div>
+          <Collage preset="hero">
+            <PhotoPrint photo={photos.islaenderWiese} caption="Löwenzahnwiese" slot="slot-a" tilt={-2} tape />
+            <PhotoPrint photo={photos.islaenderAuge} caption="Nahaufnahme" slot="slot-b" tilt={4} />
+            <PhotoPrint photo={photos.islaenderSonnenblumenfeld} caption="Im Sonnenblumenfeld" slot="slot-c" tilt={-5} />
+            <PhotoPrint photo={photos.islaenderSonnenblume} caption="Isländer" slot="slot-d" tilt={3} />
+          </Collage>
         </div>
       </section>
 
-      <section id="deckhengste" className="farm-section" tabIndex={-1}>
-        <div className="section-wrap">
-          <p className="eyebrow">Väter unserer Isländer</p>
-          <h2>
+      <section id="deckhengste" className="section farm-section farm-section-tinted" aria-labelledby="deckhengste-titel" tabIndex={-1}>
+        <div className="wrap">
+          <p className="label">Väter unserer Isländer</p>
+          <h2 id="deckhengste-titel" className="section-title" data-reveal="text">
             Deck<em>hengste.</em>
           </h2>
-          <ul className="fact-cards">
-            {stallions.map((stallion) => (
-              <li key={stallion.id}>
+          <ol className="stallion-list">
+            {stallions.map((stallion, index) => (
+              <li key={stallion.id} className="stallion">
+                <span className="index-number" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
                 <h3>{stallion.name}</h3>
-                <p>* {stallion.born}</p>
-                {stallion.details && <p>{stallion.details}</p>}
-                {stallion.stud && <p>{stallion.stud}</p>}
+                <p className="stallion-born">
+                  <span className="sr-only">geboren </span>
+                  <span aria-hidden="true">* </span>
+                  {stallion.born}
+                </p>
+                <div className="stallion-details">
+                  {stallion.details && <p>{stallion.details}</p>}
+                  {stallion.stud && <p>{stallion.stud}</p>}
+                </div>
               </li>
             ))}
-          </ul>
+          </ol>
         </div>
       </section>
 
-      <section
-        id="verkaufspferde"
-        className="farm-section farm-section-tinted"
-        tabIndex={-1}
-      >
-        <div className="section-wrap">
-          <p className="eyebrow">Vom Eichwieserhof</p>
-          <h2>
-            Verkaufs<em>pferde.</em>
-          </h2>
-          <p className="as-of">{saleHorsesAsOf}</p>
-          <p className="farm-lead">
-            Bitte beachten Sie, dass all unsere Verkaufspferde{' '}
-            <strong>nicht</strong> eingeritten sind!
+      <section id="verkaufspferde" className="section farm-section" aria-labelledby="verkaufspferde-titel" tabIndex={-1}>
+        <div className="wrap">
+          <div className="sale-head">
+            <div>
+              <p className="label">Vom Eichwieserhof</p>
+              <h2 id="verkaufspferde-titel" className="section-title" data-reveal="text">
+                Verkaufs<em>pferde.</em>
+              </h2>
+            </div>
+            <p className="as-of stamp-label">{saleHorsesAsOf}</p>
+          </div>
+          <p className="note-board">
+            Bitte beachten Sie, dass all unsere Verkaufspferde <strong>nicht</strong> eingeritten sind!
           </p>
-          {saleHorseGroups.map((group) => (
+          {saleHorseGroups.map((group, groupIndex) => (
             <div className="horse-group" key={group.id}>
-              <h3>{group.title}</h3>
+              <h3 className="horse-group-title">{group.title}</h3>
               <ul className="horse-grid">
-                {group.horses.map((horse) => (
-                  <li className="horse-card" key={horse.name}>
-                    <Photo photo={horse.photo} className="photo-cover" />
-                    <div>
-                      <h4>{horse.name}</h4>
-                      <p>{horse.born}</p>
+                {group.horses.map((horse, horseIndex) => {
+                  const tilt = saleTilts[(groupIndex + horseIndex) % saleTilts.length] ?? 0;
+                  return (
+                    <li className="horse-card" key={horse.name}>
+                      <PhotoPrint photo={horse.photo} tilt={tilt} />
+                      <h4 className="horse-name">{horse.name}</h4>
+                      <p className="horse-born">{horse.born}</p>
                       <dl>
                         <div>
                           <dt>M:</dt>
@@ -145,63 +172,61 @@ export function EichwieserhofPage() {
                           <dd>{getStallionName(horse.sireId)}</dd>
                         </div>
                       </dl>
-                    </div>
-                  </li>
-                ))}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
         </div>
       </section>
 
-      <section id="anguszucht" className="farm-section" tabIndex={-1}>
-        <div className="section-wrap two-column farm-columns">
-          <div>
-            <p className="eyebrow">Deutsch Angus</p>
-            <h2>
-              Angus<em>zucht.</em>
-            </h2>
-            {angusText.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
-          <div className="stacked-photos">
-            <Photo photo={photos.angusHerde} />
-            <Photo photo={photos.angusBlockhaus} />
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="rindfleisch"
-        className="farm-section farm-section-tinted"
-        tabIndex={-1}
+      <PanoramaBand
+        id="anguszucht"
+        labelledBy="anguszucht-titel"
+        layout="stacked"
+        panorama={{ photo: photos.angusHerde, caption: 'Angus-Herde' }}
+        prints={[{ photo: photos.angusBlockhaus, caption: 'Angus-Rinder vor dem Blockhaus' }]}
       >
-        <div className="section-wrap two-column farm-columns">
-          <div>
-            <p className="eyebrow">Rindfleisch bestellen</p>
-            <h2>
+        <Sign variant="raps">Deutsch Angus</Sign>
+        <h2 id="anguszucht-titel" data-reveal="text">
+          Angus<em>zucht.</em>
+        </h2>
+        <div className="text-columns">
+          {angusText.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
+        </div>
+      </PanoramaBand>
+
+      <section id="rindfleisch" className="section farm-section" aria-labelledby="rindfleisch-titel" tabIndex={-1}>
+        <div className="wrap farm-split farm-split-reversed">
+          <div className="farm-board">
+            <p className="label label-raps">Rindfleisch bestellen</p>
+            <h2 id="rindfleisch-titel" data-reveal="text">
               Rindfleisch aus eigener <em>Anguszucht.</em>
             </h2>
-            <p className="farm-lead">
+            <p className="farm-board-lead">
               <strong>Rindfleisch nur auf Vorbestellung!</strong>
-              <br />
-              Bestellung unter{' '}
-              <a href={phoneHref(beefOrderPhone)}>{beefOrderPhone}</a>
             </p>
-            <ul className="fact-cards fact-cards-compact">
+            <ul className="offer-list">
               {beefOffers.map((offer) => (
                 <li key={offer.title}>
                   <h3>{offer.title}</h3>
-                  <p>{offer.price}</p>
+                  <p className="offer-price">{offer.price}</p>
                   <p>({offer.detail})</p>
                 </li>
               ))}
             </ul>
+            <p className="farm-board-order">
+              <span>Bestellung unter</span>
+              <a className="button button-light" href={phoneHref(beefOrderPhone)}>
+                {beefOrderPhone}
+              </a>
+            </p>
+            <OakLeaf className="farm-board-leaf" />
           </div>
-          <figure className="framed-photo">
-            <Photo photo={photos.pusteblume} />
-          </figure>
+          <PhotoPrint photo={photos.pusteblume} caption="Pusteblume" tilt={3} className="farm-print" />
         </div>
       </section>
     </>

@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 const base = '/bernds-blockhaus-website';
 const widths = [320, 375, 390, 600, 768, 900, 1024, 1280];
 const routes = [
-  { path: '/', heading: /Ein Platz zum Bleiben/i },
+  { path: '/', heading: /Ankommen/i },
   { path: '/gaststaette', heading: /Genuss in/i },
   { path: '/ferienwohnungen', heading: /Zeit zum/i },
   { path: '/galerie', heading: /Ein Ort voller/i },

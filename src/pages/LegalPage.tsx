@@ -14,7 +14,7 @@ export function ImprintPage() {
         title={<>Impressum</>}
         copy="Anbieterkennzeichnung und Kontaktangaben."
       />
-      <section className="content-section section-wrap legal-text">
+      <section className="section wrap legal-text">
         <h2>{operator.name}</h2>
         <p>
           {operator.address.street}
@@ -57,7 +57,7 @@ export function PrivacyPage() {
         title={<>Datenschutz</>}
         copy="[PLATZHALTER: Datenschutzerklärung anhand der tatsächlich eingesetzten Dienste erstellen und rechtlich prüfen lassen.]"
       />
-      <section className="content-section section-wrap">
+      <section className="section wrap legal-text">
         <p>
           [PLATZHALTER: Verantwortliche Stelle, Datenverarbeitung,
           Rechtsgrundlagen, Speicherdauer und Betroffenenrechte ergänzen.]

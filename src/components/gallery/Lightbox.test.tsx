@@ -66,7 +66,9 @@ function GalleryHarness() {
       <button type="button" onClick={() => setIsOpen(true)}>Gallery trigger</button>
       {isOpen && (
         <Lightbox
-          item={galleryItems[0]!}
+          items={galleryItems}
+          index={0}
+          onSelect={vi.fn()}
           onClose={() => setIsOpen(false)}
           onPrevious={vi.fn()}
           onNext={vi.fn()}
