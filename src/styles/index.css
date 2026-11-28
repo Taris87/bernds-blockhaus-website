@@ -2750,8 +2750,12 @@ h3 em {
   }
   .marquee-list {
     flex-wrap: wrap;
-    padding-inline: var(--gutter) 72px;
+    padding-inline: var(--gutter);
     row-gap: 8px;
+  }
+  /* Nothing moves, so there is nothing to pause (QA-114). */
+  .marquee-toggle {
+    display: none;
   }
   .marquee-list[aria-hidden='true'] {
     display: none;

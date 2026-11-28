@@ -82,6 +82,8 @@ test.describe('reduced motion', () => {
     expect(await trackX(page)).toBe(before);
     expect(before).toBe(0);
     await expect(page.locator('.marquee-list[aria-hidden="true"]')).toBeHidden();
+    // Nothing to pause: the toggle is not offered (QA-114).
+    await expect(page.getByRole('button', { name: 'Laufband anhalten' })).toHaveCount(0);
   });
 
   test('counters show the end value without an animated duplicate', async ({ page }) => {
