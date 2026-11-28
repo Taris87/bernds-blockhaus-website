@@ -1301,8 +1301,8 @@ h3 em {
   color: var(--color-ivory);
   background: transparent;
 }
-.menu-tabs button[aria-selected='true']::before {
-  content: '';
+/* Selected tab shape: own element so the motion layer can let it glide (Flip). */
+.menu-tab-indicator {
   position: absolute;
   z-index: -1;
   inset: -1.5px;
@@ -2106,12 +2106,19 @@ h3 em {
   padding: 0;
   border: 0;
   color: var(--color-ivory);
-  background: rgb(42 34 28 / 96%);
+  background: transparent;
 }
 .lightbox-dialog::backdrop {
-  background: rgb(42 34 28 / 60%);
+  background: transparent;
+}
+/* Dark surface as its own layer, so the motion layer can fade it (opacity only). */
+.lightbox-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgb(42 34 28 / 98%);
 }
 .lightbox-panel {
+  position: relative;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   height: 100%;
@@ -2142,6 +2149,8 @@ h3 em {
   outline-color: var(--color-raps);
 }
 .lightbox-stage {
+  /* Horizontal swipes go to the lightbox, vertical pans stay with the browser. */
+  touch-action: pan-y;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2710,6 +2719,20 @@ h3 em {
   .menu-toggle-icon {
     font-size: 22px;
   }
+}
+
+/* ---------- Motion layer helpers (src/motion) ---------- */
+/* Visual duplicate of a counting number; the real value stays in the DOM. */
+.counter-overlay {
+  position: absolute;
+  inset: 0;
+  white-space: nowrap;
+  pointer-events: none;
+}
+/* SplitText line masks: room for descenders and italic overhang without
+   changing the line height (padding would make the page taller while split). */
+.split-line-mask {
+  overflow-clip-margin: 0.12em;
 }
 
 @media (prefers-reduced-motion: reduce) {
