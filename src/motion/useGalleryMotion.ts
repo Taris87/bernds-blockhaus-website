@@ -45,8 +45,9 @@ export function useGalleryMotion(
       // entry and must not move under a first click); later ones also rise.
       const fold = window.innerHeight;
       const rising = new Set(tiles.filter((tile) => tile.getBoundingClientRect().top > fold));
+      if (!tiles.length) return;
       gsap.set(tiles, { opacity: 0 });
-      gsap.set([...rising], { y: 30 });
+      if (rising.size) gsap.set([...rising], { y: 30 });
       triggers.current = ScrollTrigger.batch(tiles, {
         // Reachable at the page end (QA-111), active at once on screen (QA-119).
         start: reachableStart(0.92),

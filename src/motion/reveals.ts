@@ -102,6 +102,7 @@ interface PinOptions {
 /** “Anpinnen”: a print lands on the wall – y + opacity, rotation with a slight overshoot. */
 function pinTweens(timeline: gsap.core.Timeline, elements: Element[], position: number | string, stagger: number, options: PinOptions) {
   const duration = options.duration ?? 0.7;
+  if (!elements.length) return;
   timeline.set(elements, { transition: 'none' }, position);
   timeline.from(
     elements,
@@ -225,7 +226,7 @@ function clipBatch(elements: HTMLElement[], c: MotionConditions) {
   if (!elements.length) return;
   const images = elements.map((element) => element.querySelector('img')).filter((image): image is HTMLImageElement => !!image);
   gsap.set(elements, { clipPath: 'inset(0% 0% 100% 0%)' });
-  gsap.set(images, { scale: 1.12 });
+  if (images.length) gsap.set(images, { scale: 1.12 });
   ScrollTrigger.batch(elements, {
     start: reachableStart(0.85),
     onEnter: (entered) => {
