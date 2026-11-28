@@ -4,7 +4,7 @@
   "repository": "https://github.com/Taris87/bernds-blockhaus-website",
   "localPath": "C:\\Users\\Steven\\OneDrive\\Desktop\\GitHub_Repositorys\\bernds-blockhaus-website",
   "defaultBranch": "main",
-  "currentBranch": "fix/scroll-top-on-navigation",
+  "currentBranch": "design/redesign-ux-motion",
   "deployment": {
     "target": "github-pages",
     "trigger": "push auf main (.github/workflows/deploy.yml) – Merge = Deployment",
@@ -24,7 +24,7 @@
     "Prettier 3"
   ],
   "sourceWebsite": "bernds-blockhaus.de (19 Screenshots vom 27.11.2026, Inhalte laut Benutzer aktuell)",
-  "status": "QA-107 Scroll-Fix – PR zur Freigabe",
+  "status": "Redesign Huettenwand – PR zur Freigabe",
   "maturity": {
     "codeComplete": true,
     "qaPassed": true,
@@ -44,8 +44,8 @@
   "qaStatus": {
     "lastGate": "PASS",
     "lastGateSha": "f9a792582a4767c22f80e096ea481004dd8909dc",
-    "lastQaReport": ".architect/qa/qa-report-2026-11-27-scroll.md",
-    "qaVerdict": "PASS",
+    "lastQaReport": ".architect/qa/qa-report-2026-11-28-redesign.md",
+    "qaVerdict": "PASS (nach 2 Korrekturschleifen)",
     "openFindings": [
       "QA-002 (niedrig): feste 400-ms-Wartezeit für Negativ-Assertions in same-route-navigation.spec.ts",
       "QA-003 (niedrig): Router-gesteuerte Hash-Links nicht abgedeckt (derzeit keine Nutzung)",
@@ -84,6 +84,13 @@
       "branch": "feat/inhalte-alte-website",
       "mergeCommit": "216a128",
       "deployed": true
+    },
+    {
+      "number": 10,
+      "state": "MERGED",
+      "branch": "fix/scroll-top-on-navigation",
+      "mergeCommit": "b3883fe",
+      "deployed": true
     }
   ],
   "lastChanges": [
@@ -94,6 +101,7 @@
     "2026-11-27: Alte Website inventarisiert (content-inventory.md, 145 Fotos extrahiert)",
     "2026-11-27: Inhalte und 61 Fotos der alten Website eingebaut (feat/inhalte-alte-website)",
     "2026-11-27: PR #9 gemergt (216a128) und deployt",
-    "2026-11-27: QA-107 – neue Seite startet nach Navigation oben (fix/scroll-top-on-navigation)"
+    "2026-11-27: QA-107 – neue Seite startet nach Navigation oben (fix/scroll-top-on-navigation)",
+    "2026-11-28: Redesign Huettenwand (Layout, Fonts, Galerie, GSAP-Motion) – QA PASS nach 2 Korrekturschleifen"
   ]
 }
