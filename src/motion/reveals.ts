@@ -288,7 +288,8 @@ function heroIntro(hero: HTMLElement, c: MotionConditions, context: gsap.Context
   const fades = [...hero.querySelectorAll<HTMLElement>('[data-reveal="fade"]')];
   const all = [label, title, panel, stamp, ...prints, ...fades].filter((element): element is HTMLElement => !!element);
 
-  // Hidden until the fonts are ready (one frame at most with preloaded fonts).
+  // Hidden until the fonts are ready: index.html preloads the hero fonts, so
+  // this is short; fontsReady() gives up after 1.5 s and the entry plays anyway.
   gsap.set(all, { opacity: 0 });
 
   void fontsReady().then(() => {
