@@ -3,8 +3,10 @@ import { expect, test } from '@playwright/test';
 const base = '/bernds-blockhaus-website';
 
 test.describe('native gallery lightbox', () => {
-  test('fits viewport and restores focus after keyboard navigation', async ({ page }) => {
-    for (const width of [320, 375, 390, 600, 768, 900, 1024, 1280]) {
+  // One test per width (QA-112): the former single test ran all eight widths
+  // in a row and hit the 30 s limit under load. Assertions are unchanged.
+  for (const width of [320, 375, 390, 600, 768, 900, 1024, 1280]) {
+    test(`fits viewport and restores focus after keyboard navigation at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 740 });
       await page.goto(`${base}/galerie`);
       const trigger = page.getByRole('button', { name: /groß anzeigen/i }).first();
@@ -29,8 +31,8 @@ test.describe('native gallery lightbox', () => {
       await page.keyboard.press('Escape');
       await expect(dialog).not.toBeVisible();
       await expect(trigger).toBeFocused();
-    }
-  });
+    });
+  }
 
   test('native Tab and Shift+Tab navigation never focuses the inert background', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
